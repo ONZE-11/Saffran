@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,19 +20,25 @@ import {
 import { useLocale } from "@/context/locale-context";
 import { useCart } from "@/context/cart-context";
 import { Logo } from "@/components/logo";
-import { SignInButton, UserButton, SignedIn, SignedOut, useUser } from "@clerk/nextjs";
+import {
+  SignInButton,
+  UserButton,
+  SignedIn,
+  SignedOut,
+  useUser,
+} from "@clerk/nextjs";
 
 export function SiteHeader() {
   const { setTheme } = useTheme();
   const { locale, setLocale, t } = useLocale();
   const { cartItemCount } = useCart();
-  
   const { user } = useUser();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const adminEmails = ["mahjoubia509@gmail.com", "mairesmaster@outlook.com"];
   const isAdmin = adminEmails.includes(
-  user?.emailAddresses?.[0]?.emailAddress || ""
-);
-
+    user?.emailAddresses?.[0]?.emailAddress || ""
+  );
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/40 bg-background/80 backdrop-blur-lg">
@@ -69,7 +76,6 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-4">
-          {/* ✅ Admin Panel Button (visible only to admin) */}
           {isAdmin && (
             <Link
               href="/admin"
@@ -79,7 +85,6 @@ export function SiteHeader() {
             </Link>
           )}
 
-          {/* 🛒 Shopping Cart */}
           <Link href="/cart" className="relative group" prefetch={false}>
             <Button
               variant="ghost"
@@ -101,7 +106,6 @@ export function SiteHeader() {
             </div>
           </Link>
 
-          {/* 🌐 Language Selector */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -119,7 +123,6 @@ export function SiteHeader() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* 🌓 Theme Toggle */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -145,17 +148,16 @@ export function SiteHeader() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* ☰ Mobile Menu Toggle */}
           <Button
             variant="ghost"
             size="icon"
             className="md:hidden text-foreground/70 hover:text-primary"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             <MenuIcon className="h-6 w-6" />
             <span className="sr-only">Toggle navigation</span>
           </Button>
 
-          {/* 👤 Auth Buttons */}
           <SignedOut>
             <SignInButton mode="modal" />
           </SignedOut>
@@ -164,6 +166,49 @@ export function SiteHeader() {
           </SignedIn>
         </div>
       </div>
+
+      {/* ✅ Mobile Menu Content */}
+      {mobileMenuOpen && (
+        <nav className="md:hidden bg-background border-t border-border p-4 space-y-2">
+          <Link
+            href="/"
+            className="block text-foreground/80 hover:text-primary transition-colors"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            {t("common.home")}
+          </Link>
+          <Link
+            href="/products"
+            className="block text-foreground/80 hover:text-primary transition-colors"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            {t("common.shopSaffron")}
+          </Link>
+          <Link
+            href="/about"
+            className="block text-foreground/80 hover:text-primary transition-colors"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            {t("common.aboutUs")}
+          </Link>
+          <Link
+            href="/contact"
+            className="block text-foreground/80 hover:text-primary transition-colors"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            {t("common.contact")}
+          </Link>
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className="block text-indigo-600 hover:underline"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              🛠 Admin Panel
+            </Link>
+          )}
+        </nav>
+      )}
     </header>
   );
 }
