@@ -1,0 +1,189 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import "react-datepicker/dist/react-datepicker.css";
+
+
+@layer base {
+  :root {
+    /* Light Mode: Vibrant & Energetic Palette */
+    --background: 0 0% 100%; /* Pure White */
+    --foreground: 0 0% 15%; /* Dark Gray for text */
+    --card: 0 0% 98%; /* Very light gray for cards */
+    --card-foreground: 0 0% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 15%;
+    --primary: 25 95% 60%; /* Bright Energetic Orange */
+    --primary-foreground: 0 0% 100%; /* White text on primary */
+    --secondary: 320 85% 65%; /* Vibrant Pink/Magenta */
+    --secondary-foreground: 0 0% 15%;
+    --muted: 210 40% 96%; /* Light Blue-Gray */
+    --muted-foreground: 0 0% 40%; /* Medium Gray */
+    --accent: 280 80% 70%; /* Vibrant Purple */
+    --accent-foreground: 0 0% 15%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 13% 91%; /* Light Blue-Gray Border */
+    --input: 210 40% 96%;
+    --ring: 25 95% 60%; /* Bright Orange */
+    --radius: 0.5rem;
+
+    /* Enhanced Vibrant Orange Palette */
+    --vibrant-orange-50: 25 100% 97%;
+    --vibrant-orange-100: 25 100% 94%;
+    --vibrant-orange-200: 25 100% 87%;
+    --vibrant-orange-300: 25 100% 78%;
+    --vibrant-orange-400: 25 95% 68%;
+    --vibrant-orange-500: 25 95% 60%; /* Main Bright Orange */
+    --vibrant-orange-600: 25 90% 52%;
+    --vibrant-orange-700: 25 85% 44%;
+    --vibrant-orange-800: 25 80% 36%;
+    --vibrant-orange-900: 25 75% 28%;
+    --vibrant-orange-950: 25 70% 20%;
+
+    /* Enhanced Vibrant Pink Palette */
+    --vibrant-pink-50: 320 100% 97%;
+    --vibrant-pink-100: 320 100% 94%;
+    --vibrant-pink-200: 320 95% 87%;
+    --vibrant-pink-300: 320 90% 78%;
+    --vibrant-pink-400: 320 85% 70%;
+    --vibrant-pink-500: 320 85% 65%; /* Main Vibrant Pink */
+    --vibrant-pink-600: 320 80% 58%;
+    --vibrant-pink-700: 320 75% 50%;
+    --vibrant-pink-800: 320 70% 42%;
+    --vibrant-pink-900: 320 65% 34%;
+    --vibrant-pink-950: 320 60% 26%;
+
+    /* New Energetic Purple Palette */
+    --vibrant-purple-50: 280 100% 97%;
+    --vibrant-purple-100: 280 100% 94%;
+    --vibrant-purple-200: 280 95% 87%;
+    --vibrant-purple-300: 280 90% 78%;
+    --vibrant-purple-400: 280 85% 70%;
+    --vibrant-purple-500: 280 80% 65%;
+    --vibrant-purple-600: 280 75% 58%;
+    --vibrant-purple-700: 280 70% 50%;
+    --vibrant-purple-800: 280 65% 42%;
+    --vibrant-purple-900: 280 60% 34%;
+
+    /* New Energetic Blue Palette */
+    --vibrant-blue-50: 200 100% 97%;
+    --vibrant-blue-100: 200 100% 94%;
+    --vibrant-blue-200: 200 95% 87%;
+    --vibrant-blue-300: 200 90% 78%;
+    --vibrant-blue-400: 200 85% 70%;
+    --vibrant-blue-500: 200 80% 65%;
+    --vibrant-blue-600: 200 75% 58%;
+    --vibrant-blue-700: 200 70% 50%;
+    --vibrant-blue-800: 200 65% 42%;
+    --vibrant-blue-900: 200 60% 34%;
+
+    /* New Energetic Green Palette */
+    --vibrant-green-50: 140 100% 97%;
+    --vibrant-green-100: 140 100% 94%;
+    --vibrant-green-200: 140 95% 87%;
+    --vibrant-green-300: 140 90% 78%;
+    --vibrant-green-400: 140 85% 70%;
+    --vibrant-green-500: 140 80% 65%;
+    --vibrant-green-600: 140 75% 58%;
+    --vibrant-green-700: 140 70% 50%;
+    --vibrant-green-800: 140 65% 42%;
+    --vibrant-green-900: 140 60% 34%;
+
+    /* New Energetic Yellow Palette */
+    --vibrant-yellow-50: 50 100% 97%;
+    --vibrant-yellow-100: 50 100% 94%;
+    --vibrant-yellow-200: 50 95% 87%;
+    --vibrant-yellow-300: 50 90% 78%;
+    --vibrant-yellow-400: 50 85% 70%;
+    --vibrant-yellow-500: 50 80% 65%;
+    --vibrant-yellow-600: 50 75% 58%;
+    --vibrant-yellow-700: 50 70% 50%;
+    --vibrant-yellow-800: 50 65% 42%;
+    --vibrant-yellow-900: 50 60% 34%;
+  }
+
+  .dark {
+    /* Dark Mode: Keep existing colors */
+    --background: 240 20% 10%; /* Deep Blue-Gray Background */
+    --foreground: 0 0% 90%; /* Light Gray Text */
+    --card: 240 20% 15%; /* Slightly lighter dark blue-gray for cards */
+    --card-foreground: 0 0% 90%;
+    --popover: 240 20% 15%;
+    --popover-foreground: 0 0% 90%;
+    --primary: 30 90% 65%; /* Brighter Vibrant Orange */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 340 80% 75%; /* Brighter Vibrant Pink */
+    --secondary-foreground: 0 0% 90%;
+    --muted: 240 20% 20%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 340 80% 75%;
+    --accent-foreground: 0 0% 90%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 20% 25%;
+    --input: 240 20% 25%;
+    --ring: 30 90% 65%; /* Brighter Vibrant Orange */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fade-in 1s ease-out forwards;
+  }
+
+  .gradient-text {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--vibrant-orange-500)),
+      hsl(var(--vibrant-pink-500)),
+      hsl(var(--vibrant-purple-500))
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% 200%;
+    animation: gradient-shift 4s ease-in-out infinite;
+  }
+
+  .gradient-bg {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--vibrant-orange-100)),
+      hsl(var(--vibrant-pink-100)),
+      hsl(var(--vibrant-purple-100))
+    );
+    background-size: 200% 200%;
+    animation: gradient-shift 8s ease-in-out infinite;
+  }
+
+  .card-gradient {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--vibrant-blue-50)),
+      hsl(var(--vibrant-green-50)),
+      hsl(var(--vibrant-yellow-50))
+    );
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
