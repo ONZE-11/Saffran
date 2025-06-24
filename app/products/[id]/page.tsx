@@ -8,6 +8,7 @@ import Image from "next/image";
 import { translations, Locale } from "@/lib/translations";
 import ProductDetailClient from "./ProductDetailClient";
 
+
 type Props = {
   params: { id: string };
   searchParams?: { lang?: string }; // پشتیبانی از ?lang=es
@@ -20,9 +21,12 @@ export default async function ProductDetailPage({
   const { id } = params;
 
   // 1. گرفتن اطلاعات محصول
-  const res = await fetch(`http://localhost:3000/api/products/${id}`, {
-    cache: "no-store",
-  });
+const host = (await headers()).get("host");
+const protocol = host?.includes("localhost") ? "http" : "https";
+const res = await fetch(`${protocol}://${host}/api/products/${id}`, {
+  cache: "no-store",
+});
+
   if (!res.ok) return notFound();
   const product: Product = await res.json();
 
