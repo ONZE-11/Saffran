@@ -1,5 +1,3 @@
-// app/admin/page.tsx
-
 import { currentUser } from "@clerk/nextjs/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -12,9 +10,12 @@ export default async function AdminPage() {
   const user = await currentUser();
   if (!user) redirect("/");
 
-  const adminEmail = "mahjoubia509@gmail.com";
   const email = user.emailAddresses[0].emailAddress;
-  if (email !== adminEmail) redirect("/");
+
+  // ✅ ایمیل‌های مجاز برای ورود به پنل ادمین
+  const adminEmails = ["mahjoubia509@gmail.com", "mairesmaster@outlook.com"];
+
+  if (!adminEmails.includes(email)) redirect("/");
 
   // 🔍 تشخیص زبان از هدر مرورگر (Accept-Language)
   const acceptLanguage = (await headers()).get("accept-language") ?? "en";

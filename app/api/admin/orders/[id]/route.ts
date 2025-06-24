@@ -6,7 +6,7 @@ import { currentUser } from "@clerk/nextjs/server";
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const user = await currentUser();
-    const adminEmails = ["mahjoubia509@gmail.com", "admin2@example.com"];
+    const adminEmails = ["mahjoubia509@gmail.com", "mairesmaster@outlook.com"];
 
     if (!user || !adminEmails.includes(user.emailAddresses[0].emailAddress)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });

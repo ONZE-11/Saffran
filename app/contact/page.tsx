@@ -1,53 +1,61 @@
-"use client"
+"use client";
 
-import { SiteHeader } from "@/components/site-header"
-import { SiteFooter } from "@/components/site-footer"
-import OrderMessageForm from "@/components/order-message-form"
-import { useLocale } from "@/context/locale-context"
-import { MailIcon, PhoneIcon, MapPinIcon, MessageSquareTextIcon, CopyIcon } from "lucide-react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { useState } from "react"
-
+import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
+import OrderMessageForm from "@/components/order-message-form";
+import { useLocale } from "@/context/locale-context";
+import {
+  MailIcon,
+  PhoneIcon,
+  MapPinIcon,
+  MessageSquareTextIcon,
+  CopyIcon,
+} from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 export default function ContactPage() {
-  const { t } = useLocale()
-  const [emailCopied, setEmailCopied] = useState(false)
+  const { t } = useLocale();
+  const [emailCopied, setEmailCopied] = useState(false);
 
   // Define the address for the map (can be used for the iframe src)
-  const mapAddress = "Avenida Francia, N45, Valencia, España"
+  const mapAddress = "Avenida Francia, N45, Valencia, España";
 
   const handleEmailClick = () => {
-    const email = "mairesmaster@outlook.com"
-    const subject = "Consulta desde Elororojo.es"
-    const body = "Hola, me gustaría obtener más información sobre sus productos de azafrán."
+    const email = "mairesmaster@outlook.com";
+    const subject = "Consulta desde Elororojo.es";
+    const body =
+      "Hola, me gustaría obtener más información sobre sus productos de azafrán.";
 
-    const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+    const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(
+      subject
+    )}&body=${encodeURIComponent(body)}`;
 
     // Try to open email client
-    window.location.href = mailtoLink
-  }
+    window.location.href = mailtoLink;
+  };
 
   const copyEmailToClipboard = () => {
-    const email = "mairesmaster@outlook.com"
+    const email = "mairesmaster@outlook.com";
     navigator.clipboard
       .writeText(email)
       .then(() => {
-        setEmailCopied(true)
-        setTimeout(() => setEmailCopied(false), 2000)
+        setEmailCopied(true);
+        setTimeout(() => setEmailCopied(false), 2000);
       })
       .catch(() => {
         // Fallback for older browsers
-        const textArea = document.createElement("textarea")
-        textArea.value = email
-        document.body.appendChild(textArea)
-        textArea.select()
-        document.execCommand("copy")
-        document.body.removeChild(textArea)
-        setEmailCopied(true)
-        setTimeout(() => setEmailCopied(false), 2000)
-      })
-  }
+        const textArea = document.createElement("textarea");
+        textArea.value = email;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+        setEmailCopied(true);
+        setTimeout(() => setEmailCopied(false), 2000);
+      });
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-muted/10 to-background">
@@ -87,7 +95,9 @@ export default function ContactPage() {
                   <div className="flex items-start gap-4 text-foreground p-4 rounded-lg bg-gradient-to-r from-vibrant-orange-50 to-vibrant-pink-50 dark:from-muted/20 dark:to-muted/20 shadow-md">
                     <MailIcon className="h-6 w-6 text-vibrant-orange-600 dark:text-vibrant-orange-400 flex-shrink-0 mt-1 drop-shadow-sm" />
                     <div className="flex-1">
-                      <h3 className="font-semibold text-lg drop-shadow-sm">{t("contactPage.email")}</h3>
+                      <h3 className="font-semibold text-lg drop-shadow-sm">
+                        {t("contactPage.email")}
+                      </h3>
                       <div className="flex items-center gap-2 mt-1">
                         <button
                           onClick={handleEmailClick}
@@ -105,18 +115,23 @@ export default function ContactPage() {
                           <CopyIcon className="h-3 w-3" />
                         </Button>
                         {emailCopied && (
-                          <span className="text-green-600 text-sm animate-pulse drop-shadow-sm">¡Copiado!</span>
+                          <span className="text-green-600 text-sm animate-pulse drop-shadow-sm">
+                            ¡Copiado!
+                          </span>
                         )}
                       </div>
                       <p className="text-xs text-muted-foreground mt-1">
-                        Haga clic para abrir su cliente de email o copiar la dirección
+                        Haga clic para abrir su cliente de email o copiar la
+                        dirección
                       </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-4 text-foreground p-4 rounded-lg bg-gradient-to-r from-vibrant-blue-50 to-vibrant-purple-50 dark:from-muted/20 dark:to-muted/20 shadow-md">
                     <PhoneIcon className="h-6 w-6 text-vibrant-blue-600 dark:text-vibrant-blue-400 flex-shrink-0 mt-1 drop-shadow-sm" />
                     <div>
-                      <h3 className="font-semibold text-lg drop-shadow-sm">{t("contactPage.phone")}</h3>
+                      <h3 className="font-semibold text-lg drop-shadow-sm">
+                        {t("contactPage.phone")}
+                      </h3>
                       <a
                         href="tel:+34601080799"
                         className="text-muted-foreground hover:text-primary transition-colors text-base hover:scale-105 duration-200"
@@ -128,7 +143,9 @@ export default function ContactPage() {
                   <div className="flex items-start gap-4 text-foreground p-4 rounded-lg bg-gradient-to-r from-vibrant-green-50 to-vibrant-yellow-50 dark:from-muted/20 dark:to-muted/20 shadow-md">
                     <MapPinIcon className="h-6 w-6 text-vibrant-green-600 dark:text-vibrant-green-400 flex-shrink-0 mt-1 drop-shadow-sm" />
                     <div>
-                      <h3 className="font-semibold text-lg drop-shadow-sm">{t("contactPage.address")}</h3>
+                      <h3 className="font-semibold text-lg drop-shadow-sm">
+                        {t("contactPage.address")}
+                      </h3>
                       <p className="text-muted-foreground text-base">
                         Elororojo.es
                         <br />
@@ -149,7 +166,10 @@ export default function ContactPage() {
             </div>
           </div>
           {/* Section 3: Map */}
-          <div className="max-w-5xl mx-auto w-full mt-16 animate-fade-in" style={{ animationDelay: "0.7s" }}>
+          <div
+            className="max-w-5xl mx-auto w-full mt-16 animate-fade-in"
+            style={{ animationDelay: "0.7s" }}
+          >
             <h2 className="text-3xl font-bold font-serif text-foreground text-center mb-8 flex items-center justify-center gap-4 drop-shadow-lg">
               <MapPinIcon className="h-8 w-8 text-vibrant-orange-600 dark:text-vibrant-orange-400 drop-shadow-sm" />
               {t("contactPage.findUsOnMap")}
@@ -159,20 +179,20 @@ export default function ContactPage() {
               style={{ paddingBottom: "56.25%" }}
             >
               <iframe
-                src={`https://maps.google.com/maps?q=${encodeURIComponent(mapAddress)}&output=embed`}
+                src="https://maps.google.com/maps?q=39.459761,-0.347374&z=17&output=embed"
                 width="100%"
                 height="100%"
                 style={{ border: 0, position: "absolute", top: 0, left: 0 }}
                 allowFullScreen={true}
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
-                title="Elororojo.es - Avenida Francia, N45, Valencia, España"
-              ></iframe>
+                title="Elororojo.es - Avinguda de França, 45"
+              />
             </div>
           </div>
         </div>
       </main>
       <SiteFooter />
     </div>
-  )
+  );
 }

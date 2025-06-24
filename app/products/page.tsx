@@ -69,7 +69,7 @@ export default function ProductsPage() {
             {products.map((product) => (
               <Card
                 key={product.id}
-                className="group overflow-hidden rounded-lg shadow-lg hover:shadow-xl transition-transform duration-300 hover:-translate-y-2 bg-card"
+                className="group h-full flex flex-col justify-between rounded-lg shadow-lg hover:shadow-xl transition-transform duration-300 hover:-translate-y-2 bg-card"
               >
                 <Link
                   href={`/products/${product.id}`}
@@ -84,45 +84,53 @@ export default function ProductsPage() {
                     className="w-full h-48 object-cover"
                   />
                 </Link>
-                <CardContent className="p-4 text-center">
-                  <h3 className="text-xl font-semibold mb-2 font-serif text-foreground">
-                    {locale === "es" ? product.title_es : product.title_en}
-                  </h3>
-                  <p className="text-muted-foreground mb-4 line-clamp-2">
-                    {locale === "es"
-                      ? product.description_es
-                      : product.description_en}
-                  </p>
-                  <div className="flex items-center justify-center gap-2 mb-4">
-                    <span className="text-2xl font-bold text-vibrant-orange-700 dark:text-vibrant-orange-400">
-                      €{Number(product.price).toFixed(2)}
-                    </span>
-                    {product.originalPrice && (
-                      <span className="text-muted-foreground line-through">
-                        €{Number(product.originalPrice).toFixed(2)}
+                <CardContent className="p-4 flex flex-col flex-1 justify-between text-center">
+                  <div>
+                    <h3 className="text-xl font-semibold mb-2 font-serif text-foreground">
+                      {locale === "es" ? product.title_es : product.title_en}
+                    </h3>
+                    <p className="text-muted-foreground mb-4 line-clamp-2">
+                      {locale === "es"
+                        ? product.description_es
+                        : product.description_en}
+                    </p>
+                    <div className="flex items-center justify-center gap-2 mb-4">
+                      <span className="text-2xl font-bold text-vibrant-orange-700 dark:text-vibrant-orange-400">
+                        €{Number(product.price).toFixed(2)}
                       </span>
-                    )}
+                      {product.originalPrice && (
+                        <span className="text-muted-foreground line-through">
+                          €{Number(product.originalPrice).toFixed(2)}
+                        </span>
+                      )}
+                    </div>
                   </div>
 
-                  <Button
-                    onClick={() => handleAddToCartOnly(product.id.toString())}
-                    className="w-full py-3 font-semibold rounded-lg bg-vibrant-orange-600 text-white hover:bg-vibrant-orange-500 focus:outline-none focus:ring-2 focus:ring-vibrant-orange-300 shadow-sm hover:shadow-md transition-all duration-300 ease-in-out hover:scale-[1.02]"
-                  >
-                    {addedIds.includes(product.id.toString())
-                      ? locale === "es"
-                        ? "Añadido"
-                        : "Added"
-                      : locale === "es"
-                      ? "Agregar al carrito"
-                      : "Add to Cart"}
-                  </Button>
+                  <div className="mt-auto space-y-3">
+                    <Button
+                      onClick={() =>
+                        handleAddToCartOnly(product.id.toString())
+                      }
+                      className="w-full py-3 font-semibold rounded-lg bg-vibrant-orange-600 text-white hover:bg-vibrant-orange-500 focus:outline-none focus:ring-2 focus:ring-vibrant-orange-300 shadow-sm hover:shadow-md transition-all duration-300 ease-in-out hover:scale-[1.02]"
+                    >
+                      {addedIds.includes(product.id.toString())
+                        ? locale === "es"
+                          ? "Añadido"
+                          : "Added"
+                        : locale === "es"
+                        ? "Agregar al carrito"
+                        : "Add to Cart"}
+                    </Button>
 
-                  <Button
-                    onClick={() => handleAddToCartAndRedirect(product.id.toString())}
-                    className="w-full mt-3 bg-gradient-to-r from-vibrant-orange-600 to-vibrant-pink-600 hover:from-vibrant-orange-700 hover:to-vibrant-pink-700 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                  >
-                    {locale === "es" ? "Pedir ahora" : "Order Now"}
-                  </Button>
+                    <Button
+                      onClick={() =>
+                        handleAddToCartAndRedirect(product.id.toString())
+                      }
+                      className="w-full bg-gradient-to-r from-vibrant-orange-600 to-vibrant-pink-600 hover:from-vibrant-orange-700 hover:to-vibrant-pink-700 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                    >
+                      {locale === "es" ? "Pedir ahora" : "Order Now"}
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}

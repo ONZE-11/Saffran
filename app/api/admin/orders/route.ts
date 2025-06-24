@@ -6,7 +6,7 @@ import { pool } from "@/lib/db";
 export async function GET() {
   try {
     const user = await currentUser();
-    const adminEmails = ["mahjoubia509@gmail.com", "admin2@example.com"];
+    const adminEmails = ["mahjoubia509@gmail.com", "mairesmaster@outlook.com"];
 
     if (!user || !adminEmails.includes(user.emailAddresses[0].emailAddress)) {
       return NextResponse.json([], { status: 403 });
