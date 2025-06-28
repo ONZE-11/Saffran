@@ -22,7 +22,7 @@ export default async function ProductDetailPage({
   const { id } = params;
 
   // 1. ساختن آدرس API درست
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"; // fallback for dev
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
 
   const res = await fetch(`${baseUrl}/api/products/${id}`, {
     cache: "no-store",
