@@ -9,7 +9,7 @@ import { translations, Locale } from "@/lib/translations";
 import ProductDetailClient from "./ProductDetailClient";
 
 export const dynamic = "force-dynamic"; // برای دریافت داده به‌روز در هر رندر
-
+// Trigger redeploy: Product detail dynamic route
 type Props = {
   params: { id: string };
   searchParams?: { lang?: string }; // پشتیبانی از ?lang=es
