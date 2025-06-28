@@ -9,6 +9,7 @@ import { translations, Locale } from "@/lib/translations";
 import ProductDetailClient from "./ProductDetailClient";
 
 
+
 type Props = {
   params: { id: string };
   searchParams?: { lang?: string }; // پشتیبانی از ?lang=es
