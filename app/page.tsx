@@ -44,7 +44,6 @@ export default function HomePage() {
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <SiteHeader />
       <main className="flex-1 animate-fade-in">
-        {/* Featured Products Section */}
         <section className="py-20 bg-background text-foreground">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center text-center space-y-10">

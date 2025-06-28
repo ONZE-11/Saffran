@@ -8,30 +8,29 @@ import Image from "next/image";
 import { translations, Locale } from "@/lib/translations";
 import ProductDetailClient from "./ProductDetailClient";
 
-
+export const dynamic = "force-dynamic"; // برای دریافت داده به‌روز در هر رندر
 
 type Props = {
   params: { id: string };
   searchParams?: { lang?: string }; // پشتیبانی از ?lang=es
 };
 
-export default async function ProductDetailPage({
-  params,
-  searchParams,
-}: Props) {
+export default async function ProductDetailPage({ params, searchParams }: Props) {
   const { id } = params;
 
-  // 1. گرفتن اطلاعات محصول
-const host = (await headers()).get("host");
-const protocol = host?.includes("localhost") ? "http" : "https";
-const res = await fetch(`${protocol}://${host}/api/products/${id}`, {
-  cache: "no-store",
-});
+  // 1. ساختن آدرس API درست
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"; // fallback for dev
+
+  const res = await fetch(`${baseUrl}/api/products/${id}`, {
+    cache: "no-store",
+  });
 
   if (!res.ok) return notFound();
+
   const product: Product = await res.json();
 
-  // 2. تعیین زبان از URL یا هدر
+  // 2. تشخیص زبان از پارامتر یا هدر
   const langParam = searchParams?.lang;
   const acceptLanguage = (await headers()).get("accept-language") || "en";
 
@@ -42,12 +41,12 @@ const res = await fetch(`${protocol}://${host}/api/products/${id}`, {
       ? "es"
       : "en";
 
-  // 3. ترجمه‌ها
   const common = translations[locale].common;
 
+  // 3. تنظیم آدرس تصویر
   const fullImageUrl = product.image_url.startsWith("http")
     ? product.image_url
-    : `/${product.image_url}`; // no 'images/' prefix
+    : `/${product.image_url}`;
 
   // 4. رندر صفحه
   return (
@@ -74,13 +73,11 @@ const res = await fetch(`${protocol}://${host}/api/products/${id}`, {
             </h1>
 
             <p className="text-muted-foreground text-lg mt-4">
-              {locale === "es"
-                ? product.description_es
-                : product.description_en}
+              {locale === "es" ? product.description_es : product.description_en}
             </p>
 
-            {product.originalPrice &&
-            Number(product.originalPrice) > Number(product.price) ? (
+            {/* قیمت */}
+            {product.originalPrice && Number(product.originalPrice) > Number(product.price) ? (
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-2xl font-bold text-vibrant-orange-700 dark:text-vibrant-orange-400">
                   €{Number(product.price).toFixed(2)}
