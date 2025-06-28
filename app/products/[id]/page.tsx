@@ -15,12 +15,14 @@ type Props = {
   searchParams?: { lang?: string }; // پشتیبانی از ?lang=es
 };
 
-export default async function ProductDetailPage({ params, searchParams }: Props) {
+export default async function ProductDetailPage({
+  params,
+  searchParams,
+}: Props) {
   const { id } = params;
 
   // 1. ساختن آدرس API درست
-  const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"; // fallback for dev
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"; // fallback for dev
 
   const res = await fetch(`${baseUrl}/api/products/${id}`, {
     cache: "no-store",
@@ -56,13 +58,10 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
         <div className="container px-4 md:px-6 grid md:grid-cols-2 gap-8 lg:gap-12 items-start">
           {/* تصویر محصول */}
           <div className="relative w-full h-80 md:h-[500px] rounded-lg overflow-hidden shadow-lg">
-            <Image
+            <img
               src={fullImageUrl || "/placeholder.svg"}
               alt={locale === "es" ? product.title_es : product.title_en}
-              fill
-              className="rounded-lg object-cover"
-              priority
-              unoptimized
+              className="w-full h-full object-cover rounded-lg"
             />
           </div>
 
@@ -73,11 +72,14 @@ export default async function ProductDetailPage({ params, searchParams }: Props)
             </h1>
 
             <p className="text-muted-foreground text-lg mt-4">
-              {locale === "es" ? product.description_es : product.description_en}
+              {locale === "es"
+                ? product.description_es
+                : product.description_en}
             </p>
 
             {/* قیمت */}
-            {product.originalPrice && Number(product.originalPrice) > Number(product.price) ? (
+            {product.originalPrice &&
+            Number(product.originalPrice) > Number(product.price) ? (
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-2xl font-bold text-vibrant-orange-700 dark:text-vibrant-orange-400">
                   €{Number(product.price).toFixed(2)}
