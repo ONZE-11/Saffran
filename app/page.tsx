@@ -21,7 +21,6 @@ export default function HomePage() {
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <SiteHeader />
       <main className="flex-1 animate-fade-in">
-
         {/* Featured Products Section */}
         <section className="py-20 bg-background text-foreground">
           <div className="container px-4 md:px-6">
@@ -33,12 +32,55 @@ export default function HomePage() {
                 {t.featuredProductsDescription}
               </p>
 
-              {/* نیم‌دایره نمایش محصولات */}
-              <div className="relative w-full max-w-6xl h-[340px]">
+              {/* موبایل: اسکرول افقی با فلش راهنما */}
+              <div className="md:hidden relative px-4 py-6">
+                {/* فلش راهنما */}
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 z-10 pointer-events-none animate-bounce">
+                  <div className="bg-white/80 dark:bg-gray-800/80 p-1 rounded-full shadow">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6 text-gray-500 dark:text-gray-300"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* لیست محصولات به صورت اسکرول افقی */}
+                <div className="flex space-x-4 overflow-x-auto scrollbar-hide pr-8 scroll-smooth">
+                  {products.slice(0, 7).map((product) => (
+                    <Link
+                      key={product.id}
+                      href={`/products/${product.id}`}
+                      className="flex-shrink-0"
+                      prefetch={false}
+                    >
+                      <Image
+                        src={product.image_url || "/placeholder.svg"}
+                        alt={product.alt}
+                        width={120}
+                        height={120}
+                        className="rounded-full border-4 border-white shadow-md object-cover w-[120px] h-[120px]"
+                      />
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* دسکتاپ: نیم‌دایره */}
+              <div className="hidden md:block relative w-full max-w-6xl h-[360px]">
                 {products.slice(0, 7).map((product, index, arr) => {
                   const count = arr.length;
                   const angle = (index / (count - 1)) * Math.PI;
-                  const radius = 240;
+                  const radius = 220;
                   const x = radius * Math.cos(angle);
                   const y = radius * Math.sin(angle);
 
@@ -47,7 +89,7 @@ export default function HomePage() {
                       key={product.id}
                       className="absolute transition-transform duration-300 hover:scale-105"
                       style={{
-                        left: `calc(50% + ${x}px - 100px)`,
+                        left: `calc(50% + ${x}px - 90px)`,
                         top: `calc(${radius - y}px)`,
                       }}
                     >
@@ -55,9 +97,9 @@ export default function HomePage() {
                         <Image
                           src={product.image_url || "/placeholder.svg"}
                           alt={product.alt}
-                          width={200}
-                          height={200}
-                          className="rounded-full border-4 border-white shadow-md object-cover w-[200px] h-[200px]"
+                          width={180}
+                          height={180}
+                          className="rounded-full border-4 border-white shadow-md object-cover w-[180px] h-[180px]"
                         />
                       </Link>
                     </div>
@@ -91,15 +133,21 @@ export default function HomePage() {
             <h2 className="text-3xl font-bold mb-10">{t.whyChooseUsTitle}</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="bg-muted p-6 rounded-xl shadow hover:shadow-lg transition">
-                <h3 className="text-xl font-semibold mb-2">{t.featureQuality}</h3>
+                <h3 className="text-xl font-semibold mb-2">
+                  {t.featureQuality}
+                </h3>
                 <p className="text-muted-foreground">{t.featureQualityText}</p>
               </div>
               <div className="bg-muted p-6 rounded-xl shadow hover:shadow-lg transition">
-                <h3 className="text-xl font-semibold mb-2">{t.featureExport}</h3>
+                <h3 className="text-xl font-semibold mb-2">
+                  {t.featureExport}
+                </h3>
                 <p className="text-muted-foreground">{t.featureExportText}</p>
               </div>
               <div className="bg-muted p-6 rounded-xl shadow hover:shadow-lg transition">
-                <h3 className="text-xl font-semibold mb-2">{t.featureSupport}</h3>
+                <h3 className="text-xl font-semibold mb-2">
+                  {t.featureSupport}
+                </h3>
                 <p className="text-muted-foreground">{t.featureSupportText}</p>
               </div>
             </div>
