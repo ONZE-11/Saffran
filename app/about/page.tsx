@@ -62,6 +62,38 @@ export default function AboutPage() {
             </div>
           </div>
         </div>
+        <div className="mt-16 p-6 rounded-lg bg-card shadow-lg">
+  <div className="text-center space-y-4 mb-8">
+    <h2 className="text-2xl md:text-3xl font-bold font-serif text-foreground">
+      {t("aboutPage.whyChooseUsTitle")}
+    </h2>
+    <p className="text-muted-foreground max-w-2xl mx-auto">
+      {t("aboutPage.whyChooseUsDescription")}
+    </p>
+  </div>
+
+  <div className="grid md:grid-cols-3 gap-6 text-center">
+    <div className="bg-muted dark:bg-gray-800 p-6 rounded-lg shadow-sm hover:shadow-md transition">
+      <h3 className="text-lg font-semibold text-foreground mb-2">
+        {t("aboutPage.why1Title")}
+      </h3>
+      <p className="text-muted-foreground">{t("aboutPage.why1Desc")}</p>
+    </div>
+    <div className="bg-muted dark:bg-gray-800 p-6 rounded-lg shadow-sm hover:shadow-md transition">
+      <h3 className="text-lg font-semibold text-foreground mb-2">
+        {t("aboutPage.why2Title")}
+      </h3>
+      <p className="text-muted-foreground">{t("aboutPage.why2Desc")}</p>
+    </div>
+    <div className="bg-muted dark:bg-gray-800 p-6 rounded-lg shadow-sm hover:shadow-md transition">
+      <h3 className="text-lg font-semibold text-foreground mb-2">
+        {t("aboutPage.why3Title")}
+      </h3>
+      <p className="text-muted-foreground">{t("aboutPage.why3Desc")}</p>
+    </div>
+  </div>
+</div>
+
       </main>
        
       <SiteFooter />

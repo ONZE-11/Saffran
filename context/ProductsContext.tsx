@@ -3,6 +3,8 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
 export type Product = {
+  category: string;
+  created_at: string | number | Date;
   id: number;
   slug: string;
   title_en: string;

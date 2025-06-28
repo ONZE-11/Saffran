@@ -1,115 +1,110 @@
 "use client";
 
-import { Product, useProducts } from "@/context/ProductsContext";
+import { useProducts } from "@/context/ProductsContext";
 import { useLocale } from "@/context/locale-context";
+import { translations } from "@/lib/translations";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { LeafIcon, AwardIcon, HeartIcon } from "lucide-react";
 import { useCart } from "@/context/cart-context";
-import { useRouter } from "next/navigation";
 
 export default function HomePage() {
   const products = useProducts();
-  const { locale, t } = useLocale();
+  const { locale } = useLocale();
+  const t = translations[locale].homepage;
+  const c = translations[locale].common;
   const { addToCart } = useCart();
-  const router = useRouter();
-
-  const handleAddToCart = (product: Product) => {
-    addToCart(product.id.toString()); // 👈 فقط ID را ارسال می‌کنیم
-    router.push("/cart");
-  };
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <SiteHeader />
       <main className="flex-1 animate-fade-in">
-        {/* Hero Section */}
-        {/* ... همان کدهای قبلی ... */}
 
         {/* Featured Products Section */}
-        <section className="py-12 md:py-20 bg-gradient-to-br from-muted via-muted/50 to-background text-foreground shadow-inner">
+        <section className="py-20 bg-background text-foreground">
           <div className="container px-4 md:px-6">
-            <div className="text-center space-y-4 mb-10">
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight font-serif text-vibrant-orange-700 drop-shadow-lg">
-                {t("homepage.featuredProductsTitle")}
+            <div className="flex flex-col items-center text-center space-y-10">
+              <h2 className="text-3xl md:text-4xl font-bold font-serif">
+                {t.featuredProductsTitle}
               </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto drop-shadow-sm">
-                {t("homepage.featuredProductsDescription")}
+              <p className="text-muted-foreground max-w-xl">
+                {t.featuredProductsDescription}
               </p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {products.slice(0, 3).map((product) => (
-                <Card
-                  key={product.id}
-                  className="group overflow-hidden rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 ease-in-out hover:-translate-y-3 bg-gradient-to-br from-card to-muted/30 border-2 border-transparent hover:border-vibrant-orange-200/50"
-                >
-                  <Link
-                    href={`/products/${product.id}`}
-                    className="block"
-                    prefetch={false}
-                  >
-                    <div className="relative overflow-hidden">
-                      <Image
-                        src={product.image_url || "/placeholder.svg"}
-                        alt={product.alt}
-                        width={400}
-                        height={300}
-                        className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    </div>
-                  </Link>
-                  <CardContent className="p-4 text-center">
-                    <h3 className="text-xl font-semibold mb-2 font-serif drop-shadow-sm">
-                      {locale === "en" ? product.title_en : product.title_es}
-                    </h3>
-                    <p className="text-muted-foreground mb-4 line-clamp-2">
-                      {locale === "en"
-                        ? product.description_en
-                        : product.description_es}
-                    </p>
-                    <div className="flex justify-center mb-4">
-                      <div className="flex items-center gap-2">
-                        {product.originalPrice &&
-                        Number(product.originalPrice) >
-                          Number(product.price) ? (
-                          <>
-                            <span className="text-2xl font-bold text-vibrant-orange-700 dark:text-vibrant-orange-400">
-                              €{Number(product.price).toFixed(2)}
-                            </span>
-                            <span className="text-muted-foreground line-through text-lg">
-                              €{Number(product.originalPrice).toFixed(2)}
-                            </span>
-                          </>
-                        ) : (
-                          <span className="text-2xl font-bold text-vibrant-orange-700 dark:text-vibrant-orange-400">
-                            €
-                            {Number(
-                              product.originalPrice || product.price
-                            ).toFixed(2)}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    {/* دکمه اضافه کردن به سبد خرید و هدایت */}
-                    <Button
-                      onClick={() => handleAddToCart(product)}
-                      className="w-full bg-gradient-to-r from-vibrant-orange-600 to-vibrant-pink-600 hover:from-vibrant-orange-700 hover:to-vibrant-pink-700 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+
+              {/* نیم‌دایره نمایش محصولات */}
+              <div className="relative w-full max-w-6xl h-[340px]">
+                {products.slice(0, 7).map((product, index, arr) => {
+                  const count = arr.length;
+                  const angle = (index / (count - 1)) * Math.PI;
+                  const radius = 240;
+                  const x = radius * Math.cos(angle);
+                  const y = radius * Math.sin(angle);
+
+                  return (
+                    <div
+                      key={product.id}
+                      className="absolute transition-transform duration-300 hover:scale-105"
+                      style={{
+                        left: `calc(50% + ${x}px - 100px)`,
+                        top: `calc(${radius - y}px)`,
+                      }}
                     >
-                      {t("common.orderNow")}
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+                      <Link href={`/products/${product.id}`} prefetch={false}>
+                        <Image
+                          src={product.image_url || "/placeholder.svg"}
+                          alt={product.alt}
+                          width={200}
+                          height={200}
+                          className="rounded-full border-4 border-white shadow-md object-cover w-[200px] h-[200px]"
+                        />
+                      </Link>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* دکمه ورود به صفحه فروشگاه */}
+              <Link href="/products" prefetch={false}>
+                <Button className="bg-gradient-to-r from-vibrant-orange-600 to-vibrant-pink-600 text-white px-6 py-3 rounded-full shadow-lg hover:scale-105 transition">
+                  {c.shop}
+                </Button>
+              </Link>
             </div>
           </div>
         </section>
 
-        {/* بخش‌های دیگر ... */}
+        {/* About Section */}
+        <section className="py-16 bg-muted text-foreground">
+          <div className="container px-4 md:px-6 text-center space-y-6">
+            <h2 className="text-3xl font-bold">{t.aboutTitle}</h2>
+            <p className="max-w-3xl mx-auto text-lg text-muted-foreground">
+              {t.aboutText}
+            </p>
+          </div>
+        </section>
+
+        {/* Why Choose Us Section */}
+        <section className="py-16 bg-background text-foreground">
+          <div className="container px-4 md:px-6 text-center">
+            <h2 className="text-3xl font-bold mb-10">{t.whyChooseUsTitle}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="bg-muted p-6 rounded-xl shadow hover:shadow-lg transition">
+                <h3 className="text-xl font-semibold mb-2">{t.featureQuality}</h3>
+                <p className="text-muted-foreground">{t.featureQualityText}</p>
+              </div>
+              <div className="bg-muted p-6 rounded-xl shadow hover:shadow-lg transition">
+                <h3 className="text-xl font-semibold mb-2">{t.featureExport}</h3>
+                <p className="text-muted-foreground">{t.featureExportText}</p>
+              </div>
+              <div className="bg-muted p-6 rounded-xl shadow hover:shadow-lg transition">
+                <h3 className="text-xl font-semibold mb-2">{t.featureSupport}</h3>
+                <p className="text-muted-foreground">{t.featureSupportText}</p>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
       <SiteFooter />
     </div>

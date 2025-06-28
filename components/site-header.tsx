@@ -40,37 +40,26 @@ export function SiteHeader() {
     user?.emailAddresses?.[0]?.emailAddress || ""
   );
 
+  const dropdownItemClass =
+    "px-3 py-2 text-sm rounded-md transition-colors duration-200 " +
+    "data-[highlighted]:bg-[#f4c430] data-[highlighted]:text-white " +
+    "dark:data-[highlighted]:bg-[#c1d2fe] dark:data-[highlighted]:text-black";
+
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/40 bg-background/80 backdrop-blur-lg">
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         <Logo />
         <nav className="hidden md:flex items-center gap-6 text-sm">
-          <Link
-            href="/"
-            className="font-medium text-foreground/70 hover:text-primary transition-colors"
-            prefetch={false}
-          >
+          <Link href="/" className="font-medium text-foreground/70 hover:text-primary transition-colors" prefetch={false}>
             {t("common.home")}
           </Link>
-          <Link
-            href="/products"
-            className="font-medium text-foreground/70 hover:text-primary transition-colors"
-            prefetch={false}
-          >
+          <Link href="/products" className="font-medium text-foreground/70 hover:text-primary transition-colors" prefetch={false}>
             {t("common.shopSaffron")}
           </Link>
-          <Link
-            href="/about"
-            className="font-medium text-foreground/70 hover:text-primary transition-colors"
-            prefetch={false}
-          >
+          <Link href="/about" className="font-medium text-foreground/70 hover:text-primary transition-colors" prefetch={false}>
             {t("common.aboutUs")}
           </Link>
-          <Link
-            href="/contact"
-            className="font-medium text-foreground/70 hover:text-primary transition-colors"
-            prefetch={false}
-          >
+          <Link href="/contact" className="font-medium text-foreground/70 hover:text-primary transition-colors" prefetch={false}>
             {t("common.contact")}
           </Link>
         </nav>
@@ -78,19 +67,16 @@ export function SiteHeader() {
         <div className="flex items-center gap-4">
           {isAdmin && (
             <Link
-              href="/admin"
-              className="hidden md:inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded text-sm shadow transition"
-            >
-              🛠 Admin Panel
-            </Link>
+  href="/admin"
+  className="hidden md:inline-block bg-[#f4c430] hover:bg-[#e0b020] text-black dark:bg-[#c1d2fe] dark:hover:bg-[#aabffc] dark:text-black px-3 py-1 rounded text-sm font-semibold shadow transition"
+>
+  🛠 Admin Panel
+</Link>
+
           )}
 
           <Link href="/cart" className="relative group" prefetch={false}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-foreground/70 hover:bg-muted hover:opacity-80 transition-all duration-200 relative"
-            >
+            <Button variant="ghost" size="icon" className="text-foreground/70 hover:bg-muted hover:opacity-80 transition-all duration-200 relative">
               <ShoppingCartIcon className="h-[1.2rem] w-[1.2rem]" />
               <span className="sr-only">{t("common.viewCart")}</span>
               {cartItemCount > 0 && (
@@ -100,50 +86,46 @@ export function SiteHeader() {
               )}
             </Button>
             <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-foreground text-background text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
-              {cartItemCount > 0
-                ? `${cartItemCount} ${cartItemCount === 1 ? "artículo" : "artículos"}`
-                : "Carrito vacío"}
+              {cartItemCount > 0 ? `${cartItemCount} ${cartItemCount === 1 ? "artículo" : "artículos"}` : "Carrito vacío"}
             </div>
           </Link>
 
+          {/* Dropdown for language */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-foreground/70 hover:bg-muted hover:opacity-80 transition-all duration-200"
-              >
+              <Button variant="ghost" size="icon" className="text-foreground/70 hover:bg-muted hover:opacity-80 transition-all duration-200">
                 <GlobeIcon className="h-[1.2rem] w-[1.2rem]" />
                 <span className="sr-only">Select language</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setLocale("en")}>English</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setLocale("es")}>Español</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setLocale("en")} className={dropdownItemClass}>
+                English
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setLocale("es")} className={dropdownItemClass}>
+                Español
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
+          {/* Dropdown for theme */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-foreground/70 hover:bg-muted hover:opacity-80 transition-all duration-200"
-              >
+              <Button variant="ghost" size="icon" className="text-foreground/70 hover:bg-muted hover:opacity-80 transition-all duration-200">
                 <SunIcon className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                 <MoonIcon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
                 <span className="sr-only">{t("common.toggleTheme")}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setTheme("light")}>
-                {t("common.light")}
+              <DropdownMenuItem onClick={() => setTheme("light")} className={dropdownItemClass}>
+                Light
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("dark")}>
-                {t("common.dark")}
+              <DropdownMenuItem onClick={() => setTheme("dark")} className={dropdownItemClass}>
+                Dark
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("system")}>
-                {t("common.system")}
+              <DropdownMenuItem onClick={() => setTheme("system")} className={dropdownItemClass}>
+                System
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -167,43 +149,22 @@ export function SiteHeader() {
         </div>
       </div>
 
-      {/* ✅ Mobile Menu Content */}
       {mobileMenuOpen && (
         <nav className="md:hidden bg-background border-t border-border p-4 space-y-2">
-          <Link
-            href="/"
-            className="block text-foreground/80 hover:text-primary transition-colors"
-            onClick={() => setMobileMenuOpen(false)}
-          >
+          <Link href="/" className="block text-foreground/80 hover:text-primary transition-colors" onClick={() => setMobileMenuOpen(false)}>
             {t("common.home")}
           </Link>
-          <Link
-            href="/products"
-            className="block text-foreground/80 hover:text-primary transition-colors"
-            onClick={() => setMobileMenuOpen(false)}
-          >
+          <Link href="/products" className="block text-foreground/80 hover:text-primary transition-colors" onClick={() => setMobileMenuOpen(false)}>
             {t("common.shopSaffron")}
           </Link>
-          <Link
-            href="/about"
-            className="block text-foreground/80 hover:text-primary transition-colors"
-            onClick={() => setMobileMenuOpen(false)}
-          >
+          <Link href="/about" className="block text-foreground/80 hover:text-primary transition-colors" onClick={() => setMobileMenuOpen(false)}>
             {t("common.aboutUs")}
           </Link>
-          <Link
-            href="/contact"
-            className="block text-foreground/80 hover:text-primary transition-colors"
-            onClick={() => setMobileMenuOpen(false)}
-          >
+          <Link href="/contact" className="block text-foreground/80 hover:text-primary transition-colors" onClick={() => setMobileMenuOpen(false)}>
             {t("common.contact")}
           </Link>
           {isAdmin && (
-            <Link
-              href="/admin"
-              className="block text-indigo-600 hover:underline"
-              onClick={() => setMobileMenuOpen(false)}
-            >
+            <Link href="/admin" className="block text-indigo-600 hover:underline" onClick={() => setMobileMenuOpen(false)}>
               🛠 Admin Panel
             </Link>
           )}

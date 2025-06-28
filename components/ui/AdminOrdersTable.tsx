@@ -16,46 +16,38 @@ import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { translations, Locale } from "@/lib/translations";
-import { useUser } from "@clerk/nextjs";
-import Link from "next/link";
+import { useRef } from "react";
+import { useLocale } from "@/context/locale-context";
 
+// ...
 
-type OrderStatus = "new" | "processing" | "shipped" | "cancelled";
-type PaymentStatus = "paid" | "unpaid";
+export default function AdminOrdersTable() {
+  const { locale } = useLocale(); // 👈 از context بخون، نه prop
 
-type OrderItem = {
-  product_name: string;
-  quantity: number;
-  price: string | number;
-  total_price: string | number;
-};
+  // Order types
 
-type Order = {
-  items: any;
-  order_id: number;
-  customer_name: string;
-  customer_email: string;
-  customer_phone: string;
-  address: string;
-  created_at: string;
-  status: OrderStatus;
-  payment_status: PaymentStatus;
-};
+  type OrderStatus = "new" | "processing" | "shipped" | "cancelled";
+  type PaymentStatus = "paid" | "unpaid";
 
-const getStatusStyle = (status: OrderStatus) => {
-  switch (status) {
-    case "new":
-      return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
-    case "processing":
-      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
-    case "shipped":
-      return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
-    case "cancelled":
-      return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
-  }
-};
+  type OrderItem = {
+    product_name: string;
+    quantity: number;
+    price: string | number;
+    total_price: string | number;
+  };
 
-export default function AdminOrdersTable({ locale = "en" }: { locale?: Locale }) {
+  type Order = {
+    items: OrderItem[];
+    order_id: number;
+    customer_name: string;
+    customer_email: string;
+    customer_phone: string;
+    address: string;
+    created_at: string;
+    status: OrderStatus;
+    payment_status: PaymentStatus;
+  };
+
   const [orders, setOrders] = useState<Order[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [startDate, setStartDate] = useState<Date | null>(null);
@@ -64,18 +56,7 @@ export default function AdminOrdersTable({ locale = "en" }: { locale?: Locale })
   const itemsPerPage = 5;
 
   const t = translations[locale].common;
-
-  const orderStatusLabels: Record<OrderStatus, string> = {
-    new: t.new,
-    processing: t.processing,
-    shipped: t.shipped,
-    cancelled: t.cancelled,
-  };
-
-  const paymentStatusLabels: Record<PaymentStatus, string> = {
-    paid: t.paid,
-    unpaid: t.unpaid,
-  };
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch("/api/admin/orders")
@@ -97,8 +78,10 @@ export default function AdminOrdersTable({ locale = "en" }: { locale?: Locale })
     .filter((order) => {
       if (!startDate && !endDate) return true;
       const createdAt = new Date(order.created_at);
-      if (startDate && createdAt < startDate) return false;
-      if (endDate && createdAt > endDate) return false;
+      const start = startDate ? new Date(startDate.setHours(0, 0, 0, 0)) : null;
+      const end = endDate ? new Date(endDate.setHours(23, 59, 59, 999)) : null;
+      if (start && createdAt < start) return false;
+      if (end && createdAt > end) return false;
       return true;
     });
 
@@ -106,11 +89,15 @@ export default function AdminOrdersTable({ locale = "en" }: { locale?: Locale })
   const totalRevenue = filteredOrders.reduce((sum, order) => {
     return (
       sum +
-      order.items.reduce(
-        (itemSum: number, item: { total_price: string }) =>
-          itemSum + parseFloat(item.total_price),
-        0
-      )
+      (Array.isArray(order.items)
+        ? order.items.reduce((itemSum, item) => {
+            const price =
+              typeof item.total_price === "string"
+                ? parseFloat(item.total_price)
+                : item.total_price;
+            return itemSum + (isNaN(price) ? 0 : price);
+          }, 0)
+        : 0)
     );
   }, 0);
 
@@ -120,27 +107,36 @@ export default function AdminOrdersTable({ locale = "en" }: { locale?: Locale })
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
 
   const exportToExcel = () => {
-    const data = orders.map((order) => ({
-      OrderID: order.order_id,
-      Name: order.customer_name,
-      Email: order.customer_email,
-      Phone: order.customer_phone,
-      Address: order.address,
-      Date: new Date(order.created_at).toLocaleString(),
-      Status: order.status,
-      Total: order.items
-        .reduce(
-          (sum: number, item: { total_price: string }) =>
-            sum + parseFloat(item.total_price),
-          0
-        )
-        .toFixed(2),
-    }));
+    const data = filteredOrders.map((order) => {
+      const total = Array.isArray(order.items)
+        ? order.items.reduce((sum, item) => {
+            const price =
+              typeof item.total_price === "string"
+                ? parseFloat(item.total_price)
+                : item.total_price;
+            return sum + (isNaN(price) ? 0 : price);
+          }, 0)
+        : 0;
+      return {
+        OrderID: order.order_id,
+        Name: order.customer_name,
+        Email: order.customer_email,
+        Phone: order.customer_phone,
+        Address: order.address,
+        Date: new Date(order.created_at).toLocaleString(),
+        Status: order.status,
+        Payment: order.payment_status,
+        Total: total.toFixed(2),
+      };
+    });
 
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Orders");
-    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
     const file = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(file, "orders.xlsx");
   };
@@ -148,8 +144,7 @@ export default function AdminOrdersTable({ locale = "en" }: { locale?: Locale })
   const exportToPDF = async () => {
     const element = document.getElementById("orders-container");
     if (!element) return alert("Element not found");
-
-    const canvas = await html2canvas(element);
+    const canvas = await html2canvas(element, { backgroundColor: "#ffffff" });
     const imgData = canvas.toDataURL("image/png");
     const pdf = new jsPDF("p", "mm", "a4");
     const width = pdf.internal.pageSize.getWidth();
@@ -158,222 +153,223 @@ export default function AdminOrdersTable({ locale = "en" }: { locale?: Locale })
     pdf.save("orders.pdf");
   };
 
-return (
-  <div id="orders-container" className="space-y-6">
-    <div className="mb-4 p-4 bg-indigo-50 dark:bg-indigo-900 rounded-lg shadow-sm text-indigo-900 dark:text-white text-sm font-medium flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-      <div>📦 {t.totalOrders}: {totalOrders}</div>
-      <div>💰 {t.totalRevenue}: ${totalRevenue.toFixed(2)}</div>
-    </div>
+  const handleDelete = async (orderId: number) => {
+    const confirmed = confirm(
+      t.deleteConfirm || "Are you sure you want to delete this order?"
+    );
+    if (!confirmed) return;
+    const res = await fetch(`/api/admin/orders/${orderId}`, {
+      method: "DELETE",
+    });
+    if (res.ok) {
+      setOrders((prev) => prev.filter((o) => o.order_id !== orderId));
+    }
+  };
 
-    {currentOrders.map((order) => {
-      const totalInvoice = order.items.reduce((sum: number, item: { total_price: string; }) => sum + parseFloat(item.total_price as string), 0);
+  return (
+    <div id="orders-container" ref={containerRef} className="space-y-6">
+      <div className="mb-4 p-4 bg-indigo-100 dark:bg-indigo-800 rounded-lg shadow-sm text-sm font-medium flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div className="text-indigo-800 dark:text-white">
+          📦 {t.totalOrders}: {totalOrders}
+        </div>
+        <div className="text-indigo-800 dark:text-white">
+          💰 {t.totalRevenue}: ${totalRevenue.toFixed(2)}
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={exportToExcel}
+            className="text-xs bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
+          >
+            Excel
+          </button>
+          <button
+            onClick={exportToPDF}
+            className="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
+          >
+            PDF
+          </button>
+        </div>
+      </div>
+      <div className="flex gap-4 items-center flex-wrap">
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder={t.search || "Search..."}
+          className="px-3 py-2 text-sm transition bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-500"
+        />
 
-      return (
-        <div key={order.order_id} className="rounded-xl shadow border border-indigo-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 space-y-4">
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="space-y-1 text-sm text-gray-800 dark:text-gray-200">
-              <div className="text-lg font-semibold text-indigo-700 dark:text-indigo-400">
-                #{order.order_id}
+        <DatePicker
+          selected={startDate}
+          onChange={(date) => setStartDate(date)}
+          placeholderText={t.from || "From"}
+          className="px-3 py-2 text-sm transition bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-500"
+        />
+
+        <DatePicker
+          selected={endDate}
+          onChange={(date) => setEndDate(date)}
+          placeholderText={t.to || "To"}
+          className="px-3 py-2 text-sm transition bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-500"
+        />
+      </div>
+
+      {currentOrders.map((order) => {
+        const totalInvoice = order.items.reduce(
+          (sum: number, item) => sum + parseFloat(item.total_price as string),
+          0
+        );
+        const totalQuantity = order.items.reduce(
+          (sum: number, item) => sum + Number(item.quantity),
+          0
+        );
+        return (
+          <div
+            key={order.order_id}
+            className="rounded-2xl p-5 bg-white dark:bg-gray-900 border shadow-lg transition-shadow duration-300 hover:[box-shadow:0_4px_20px_#4b5563] dark:hover:[box-shadow:0_4px_20px_#c7d2f7]"
+          >
+            <div className="flex justify-between items-center mb-2">
+              <div>
+                <div className="font-bold text-indigo-700 dark:text-indigo-300">
+                  #{order.order_id}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-300">
+                  {new Date(order.created_at).toLocaleString(locale)}
+                </div>
+                <div className="text-sm text-gray-700 dark:text-gray-200">
+                  {order.customer_name} | {order.customer_email} |{" "}
+                  {order.customer_phone}
+                </div>
+
+                <div className="text-sm text-gray-600 dark:text-gray-300">
+                  📍 {order.address}
+                </div>
               </div>
-              <div>{new Date(order.created_at).toLocaleString(locale)}</div>
-              <div>{order.customer_name} | {order.customer_email} | {order.customer_phone}</div>
-              <div>{order.address}</div>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-start md:justify-end gap-3">
-              <div className="flex items-center gap-1">
-                <span className={`px-2 py-1 rounded text-xs font-medium ${
-                  order.payment_status === "paid"
-                    ? "bg-green-100 text-green-800"
-                    : "bg-red-100 text-red-800"
-                }`}>
-                  {paymentStatusLabels[order.payment_status]}
-                </span>
+              <div className="text-sm text-gray-700 dark:text-gray-200">
+                🛒 {totalQuantity} | 💰 ${totalInvoice.toFixed(2)}
+              </div>
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                {/* Payment status first */}
                 <select
                   value={order.payment_status}
                   onChange={async (e) => {
-                    const newPaymentStatus = e.target.value as PaymentStatus;
-                    const res = await fetch(`/api/admin/orders/${order.order_id}`, {
-                      method: "PATCH",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ payment_status: newPaymentStatus }),
-                    });
+                    const newStatus = e.target.value as PaymentStatus;
+                    const res = await fetch(
+                      `/api/admin/orders/${order.order_id}`,
+                      {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ payment_status: newStatus }),
+                      }
+                    );
                     if (res.ok) {
                       setOrders((prev) =>
                         prev.map((o) =>
-                          o.order_id === order.order_id ? { ...o, payment_status: newPaymentStatus } : o
+                          o.order_id === order.order_id
+                            ? { ...o, payment_status: newStatus }
+                            : o
                         )
                       );
                     }
                   }}
-                  className="border rounded px-2 py-1 text-xs bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100"
+                  className={`text-xs px-2 py-1 rounded border dark:text-white ${
+                    order.payment_status === "paid"
+                      ? "bg-green-100 dark:bg-green-800 text-green-800 dark:text-green-100"
+                      : "bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white"
+                  }`}
                 >
                   <option value="unpaid">{t.unpaid}</option>
                   <option value="paid">{t.paid}</option>
                 </select>
-              </div>
 
-              <div className="flex items-center gap-1">
-                <span className={`px-2 py-1 rounded text-xs font-medium ${getStatusStyle(order.status)}`}>
-                  {orderStatusLabels[order.status]}
-                </span>
+                {/* Order status */}
                 <select
                   value={order.status}
                   onChange={async (e) => {
                     const newStatus = e.target.value as OrderStatus;
-                    const res = await fetch(`/api/admin/orders/${order.order_id}`, {
-                      method: "PATCH",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ status: newStatus }),
-                    });
+                    const res = await fetch(
+                      `/api/admin/orders/${order.order_id}`,
+                      {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ status: newStatus }),
+                      }
+                    );
                     if (res.ok) {
                       setOrders((prev) =>
                         prev.map((o) =>
-                          o.order_id === order.order_id ? { ...o, status: newStatus } : o
+                          o.order_id === order.order_id
+                            ? { ...o, status: newStatus }
+                            : o
                         )
                       );
                     }
                   }}
-                  className="border rounded px-2 py-1 text-xs bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100"
+                  className={`text-xs px-2 py-1 rounded border dark:text-white ${
+                    order.status === "new"
+                      ? "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200"
+                      : order.status === "processing"
+                      ? "bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200"
+                      : order.status === "shipped"
+                      ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200"
+                      : "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200"
+                  }`}
                 >
                   <option value="new">{t.new}</option>
                   <option value="processing">{t.processing}</option>
                   <option value="shipped">{t.shipped}</option>
                   <option value="cancelled">{t.cancelled}</option>
                 </select>
-              </div>
 
-
-                {/* Buttons */}
+                {/* Delete button */}
                 <button
-                  onClick={exportToExcel}
-                  className="text-xs bg-emerald-500 hover:bg-emerald-600 text-white px-2 py-1 rounded shadow-sm"
+                  onClick={() => handleDelete(order.order_id)}
+                  className="text-xs px-2 py-1 rounded bg-red-500 text-white hover:bg-red-600 transition-all duration-200 flex items-center gap-1"
                 >
-                  📊
-                </button>
-                <button
-                  onClick={exportToPDF}
-                  className="text-xs bg-sky-500 hover:bg-sky-600 text-white px-2 py-1 rounded shadow-sm"
-                >
-                  📄
-                </button>
-                <button
-                  onClick={async () => {
-                    if (confirm(t.deleteConfirm)) {
-                      const res = await fetch(
-                        `/api/admin/orders/${order.order_id}`,
-                        { method: "DELETE" }
-                      );
-                      if (res.ok) {
-                        setOrders((prev) =>
-                          prev.filter((o) => o.order_id !== order.order_id)
-                        );
-                      }
-                    }
-                  }}
-                  className="text-xs border border-red-500 text-red-500 hover:bg-red-500 hover:text-white px-2 py-1 rounded shadow-sm"
-                >
-                  🗑️
+                  🗑️{" "}
+                  <span className="hidden sm:inline">
+                    {t.delete || "Delete"}
+                  </span>
                 </button>
               </div>
             </div>
 
-            {/* Items Table */}
             <div className="overflow-x-auto">
-              <table className="w-full text-sm border mt-3 border-gray-300 dark:border-gray-600">
-                <thead className="bg-indigo-50 dark:bg-gray-700 text-gray-700 dark:text-gray-100 font-medium">
+              <table className="min-w-full text-sm border">
+                <thead className="bg-indigo-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100">
                   <tr>
-                    <th className="p-2 border">{t.product}</th>
+                    <th className="p-2 border text-center">{t.product}</th>
                     <th className="p-2 border text-center">{t.quantity}</th>
-                    <th className="p-2 border text-right">{t.price}</th>
-                    <th className="p-2 border text-right">{t.total}</th>
+                    <th className="p-2 border text-center">{t.price}</th>
+                    <th className="p-2 border text-center">{t.total}</th>
                   </tr>
                 </thead>
+
                 <tbody>
-                  {order.items.map(
-                    (
-                      item: {
-                        product_name:
-                          | string
-                          | number
-                          | bigint
-                          | boolean
-                          | ReactElement<
-                              unknown,
-                              string | JSXElementConstructor<any>
-                            >
-                          | Iterable<ReactNode>
-                          | ReactPortal
-                          | Promise<
-                              | string
-                              | number
-                              | bigint
-                              | boolean
-                              | ReactPortal
-                              | ReactElement<
-                                  unknown,
-                                  string | JSXElementConstructor<any>
-                                >
-                              | Iterable<ReactNode>
-                              | null
-                              | undefined
-                            >
-                          | null
-                          | undefined;
-                        quantity:
-                          | string
-                          | number
-                          | bigint
-                          | boolean
-                          | ReactElement<
-                              unknown,
-                              string | JSXElementConstructor<any>
-                            >
-                          | Iterable<ReactNode>
-                          | ReactPortal
-                          | Promise<
-                              | string
-                              | number
-                              | bigint
-                              | boolean
-                              | ReactPortal
-                              | ReactElement<
-                                  unknown,
-                                  string | JSXElementConstructor<any>
-                                >
-                              | Iterable<ReactNode>
-                              | null
-                              | undefined
-                            >
-                          | null
-                          | undefined;
-                        price: string;
-                        total_price: string;
-                      },
-                      index: Key | null | undefined
-                    ) => (
-                      <tr
-                        key={index}
-                        className="text-gray-800 dark:text-gray-100"
-                      >
-                        <td className="p-2 border">{item.product_name}</td>
-                        <td className="p-2 border text-center">
-                          {item.quantity}
-                        </td>
-                        <td className="p-2 border text-right">
-                          ${parseFloat(item.price).toFixed(2)}
-                        </td>
-                        <td className="p-2 border text-right">
-                          ${parseFloat(item.total_price).toFixed(2)}
-                        </td>
-                      </tr>
-                    )
-                  )}
+                  {order.items.map((item, index) => (
+                    <tr key={index}>
+                      <td className="p-2 border text-center text-gray-800 dark:text-gray-100">
+                        {item.product_name}
+                      </td>
+
+                      <td className="p-2 border text-center text-gray-800 dark:text-gray-100">
+                        {item.quantity}
+                      </td>
+                      <td className="p-2 border text-center text-gray-800 dark:text-gray-100">
+                        ${parseFloat(item.price.toString()).toFixed(2)}
+                      </td>
+                      <td className="p-2 border text-center text-gray-800 dark:text-gray-100">
+                        ${parseFloat(item.total_price.toString()).toFixed(2)}
+                      </td>
+                    </tr>
+                  ))}
                   <tr className="bg-indigo-100 dark:bg-indigo-900 font-semibold">
-                    <td colSpan={3} className="p-2 border text-right">
-                      {t.total}
+                    <td className="p-2 border text-center" colSpan={1}>
+                      Total
                     </td>
-                    <td className="p-2 border text-right">
+                    <td className="p-2 border text-center">{totalQuantity}</td>
+                    <td className="p-2 border text-center"></td>
+                    <td className="p-2 border text-center">
                       ${totalInvoice.toFixed(2)}
                     </td>
                   </tr>
@@ -384,30 +380,37 @@ return (
         );
       })}
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-4 mt-6">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded disabled:opacity-50"
-          >
-            ◀️ {t.previous}
-          </button>
-          <span className="text-sm text-gray-700 dark:text-gray-200">
-            {t.page} {currentPage} {t.of} {totalPages}
-          </span>
-          <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded disabled:opacity-50"
-          >
-            {t.next} ▶️
-          </button>
-        </div>
-      )}
+      <div className="flex justify-center items-center gap-4 mt-4 text-sm">
+        <button
+          onClick={() => {
+            setCurrentPage((prev) => Math.max(prev - 1, 1));
+            setTimeout(() => {
+              document.documentElement.scrollTo({ top: 0, behavior: "smooth" });
+            }, 100);
+          }}
+          disabled={currentPage === 1}
+          className="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded disabled:opacity-50"
+        >
+          ◀️ {t.previous || "Previous"}
+        </button>
+
+        <span className="text-gray-700 dark:text-white">
+          {t.page || "Page"} {currentPage} {t.of || "of"} {totalPages}
+        </span>
+
+        <button
+          onClick={() => {
+            setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+            setTimeout(() => {
+              document.documentElement.scrollTo({ top: 0, behavior: "smooth" });
+            }, 100);
+          }}
+          disabled={currentPage === totalPages}
+          className="px-3 py-1 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded disabled:opacity-50"
+        >
+          {t.next || "Next"} ▶️
+        </button>
+      </div>
     </div>
   );
 }
