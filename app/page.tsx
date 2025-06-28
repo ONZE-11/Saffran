@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { useCart } from "@/context/cart-context";
+import { useEffect, useRef, useState } from "react";
 
 export default function HomePage() {
   const products = useProducts();
@@ -16,6 +17,28 @@ export default function HomePage() {
   const t = translations[locale].homepage;
   const c = translations[locale].common;
   const { addToCart } = useCart();
+
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [atEnd, setAtEnd] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const el = scrollRef.current;
+      if (!el) return;
+      const reachedEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 30;
+      setAtEnd(reachedEnd);
+    };
+
+    const el = scrollRef.current;
+    if (el) {
+      el.addEventListener("scroll", handleScroll);
+      handleScroll(); // initial check
+    }
+
+    return () => {
+      if (el) el.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
@@ -34,9 +57,16 @@ export default function HomePage() {
 
               {/* موبایل: اسکرول افقی با فلش راهنما */}
               <div className="md:hidden relative px-4 py-6">
-                {/* فلش راهنما */}
-                <div className="absolute right-2 top-1/2 -translate-y-1/2 z-10 pointer-events-none animate-bounce">
-                  <div className="bg-white/80 dark:bg-gray-800/80 p-1 rounded-full shadow">
+                {!atEnd && (
+                  <button
+                    onClick={() =>
+                      scrollRef.current?.scrollBy({
+                        left: 200,
+                        behavior: "smooth",
+                      })
+                    }
+                    className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 dark:bg-gray-800/80 p-1 rounded-full shadow hover:scale-105 transition"
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-6 w-6 text-gray-500 dark:text-gray-300"
@@ -51,11 +81,13 @@ export default function HomePage() {
                         d="M9 5l7 7-7 7"
                       />
                     </svg>
-                  </div>
-                </div>
+                  </button>
+                )}
 
-                {/* لیست محصولات به صورت اسکرول افقی */}
-                <div className="flex space-x-4 overflow-x-auto scrollbar-hide pr-8 scroll-smooth">
+                <div
+                  ref={scrollRef}
+                  className="flex space-x-4 overflow-x-auto scrollbar-hide pr-8 scroll-smooth"
+                >
                   {products.slice(0, 7).map((product) => (
                     <Link
                       key={product.id}
