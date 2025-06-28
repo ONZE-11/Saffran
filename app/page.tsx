@@ -40,6 +40,11 @@ export default function HomePage() {
     };
   }, []);
 
+  // فقط محصولاتی که id معتبر دارند
+  const safeProducts = products.filter(
+    (product) => typeof product.id === "number" && product.id > 0
+  );
+
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       <SiteHeader />
@@ -87,7 +92,7 @@ export default function HomePage() {
                   ref={scrollRef}
                   className="flex space-x-4 overflow-x-auto scrollbar-hide pr-8 scroll-smooth"
                 >
-                  {products.slice(0, 7).map((product) => (
+                  {safeProducts.slice(0, 7).map((product) => (
                     <Link
                       key={product.id}
                       href={`/products/${product.id}`}
@@ -96,7 +101,7 @@ export default function HomePage() {
                     >
                       <Image
                         src={product.image_url || "/placeholder.svg"}
-                        alt={product.alt}
+                        alt={product.alt || "Product"}
                         width={120}
                         height={120}
                         className="rounded-full border-4 border-white shadow-md object-cover w-[120px] h-[120px]"
@@ -108,7 +113,7 @@ export default function HomePage() {
 
               {/* دسکتاپ: نیم‌دایره */}
               <div className="hidden md:block relative w-full max-w-6xl h-[360px]">
-                {products.slice(0, 7).map((product, index, arr) => {
+                {safeProducts.slice(0, 7).map((product, index, arr) => {
                   const count = arr.length;
                   const angle = (index / (count - 1)) * Math.PI;
                   const radius = 220;
@@ -127,7 +132,7 @@ export default function HomePage() {
                       <Link href={`/products/${product.id}`} prefetch={false}>
                         <Image
                           src={product.image_url || "/placeholder.svg"}
-                          alt={product.alt}
+                          alt={product.alt || "Product"}
                           width={180}
                           height={180}
                           className="rounded-full border-4 border-white shadow-md object-cover w-[180px] h-[180px]"
@@ -138,7 +143,7 @@ export default function HomePage() {
                 })}
               </div>
 
-              {/* دکمه ورود به صفحه فروشگاه */}
+              {/* دکمه فروشگاه */}
               <Link href="/products" prefetch={false}>
                 <Button className="bg-gradient-to-r from-vibrant-orange-600 to-vibrant-pink-600 text-white px-6 py-3 rounded-full shadow-lg hover:scale-105 transition">
                   {c.shop}
