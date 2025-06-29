@@ -217,11 +217,13 @@ export default function ProductsPage() {
                     <span className="text-2xl font-bold text-vibrant-orange-700 dark:text-vibrant-orange-400">
                       €{Number(product.price).toFixed(2)}
                     </span>
-                    {product.originalPrice && (
-                      <span className="text-muted-foreground line-through">
-                        €{Number(product.originalPrice).toFixed(2)}
-                      </span>
-                    )}
+                   {product.originalPrice &&
+  Number(product.originalPrice) > Number(product.price) && (
+    <span className="text-muted-foreground line-through">
+      €{Number(product.originalPrice).toFixed(2)}
+    </span>
+)}
+
                   </div>
                   <div className="mt-auto space-y-3">
                     <Button
