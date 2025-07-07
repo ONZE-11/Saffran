@@ -11,8 +11,6 @@ import { useLocale } from "@/context/locale-context"
 import { MinusIcon, PlusIcon, TrashIcon, ShoppingBagIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 
-
-
 export default function CartPage() {
   const router = useRouter()
   const { locale, t } = useLocale()
@@ -80,7 +78,7 @@ export default function CartPage() {
                           </h3>
                         </Link>
                         <p className="text-2xl font-bold text-vibrant-orange-700 dark:text-vibrant-orange-400">
-                          ${Number(item.price ?? 0).toFixed(2)}
+                          €{Number(item.price ?? 0).toFixed(2)}
                         </p>
                         <div className="flex items-center gap-3">
                           <div className="flex items-center border rounded-lg">
@@ -116,7 +114,7 @@ export default function CartPage() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-bold text-foreground">${(item.price * item.quantity).toFixed(2)}</p>
+                        <p className="text-lg font-bold text-foreground">€{(item.price * item.quantity).toFixed(2)}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -133,7 +131,7 @@ export default function CartPage() {
                 <CardContent className="space-y-4">
                   <div className="flex justify-between text-lg">
                     <span className="text-muted-foreground">{t("common.subtotal")}:</span>
-                    <span className="font-bold text-foreground">${cartTotal.toFixed(2)}</span>
+                    <span className="font-bold text-foreground">€{cartTotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm text-muted-foreground">
                     <span>Envío:</span>
@@ -143,15 +141,15 @@ export default function CartPage() {
                   <div className="flex justify-between text-xl font-bold">
                     <span className="text-foreground">{t("common.total")}:</span>
                     <span className="text-vibrant-orange-700 dark:text-vibrant-orange-400">
-                      ${cartTotal.toFixed(2)}
+                      €{cartTotal.toFixed(2)}
                     </span>
                   </div>
                   <div className="space-y-3 pt-4">
-                  <Link href="/checkout" className="w-full block">
-  <Button className="w-full bg-gradient-to-r from-vibrant-orange-600 to-vibrant-pink-600 hover:from-vibrant-orange-700 hover:to-vibrant-pink-700 text-white py-3 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-    {t("common.inquireToOrder")}
-  </Button>
-</Link>
+                    <Link href="/checkout" className="w-full block">
+                      <Button className="w-full bg-gradient-to-r from-vibrant-orange-600 to-vibrant-pink-600 hover:from-vibrant-orange-700 hover:to-vibrant-pink-700 text-white py-3 text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                        {t("common.inquireToOrder")}
+                      </Button>
+                    </Link>
                     <Link href="/products" className="w-full block">
                       <Button
                         variant="outline"
@@ -167,7 +165,6 @@ export default function CartPage() {
           </div>
         </div>
       </main>
-      
       <SiteFooter />
     </div>
   )
