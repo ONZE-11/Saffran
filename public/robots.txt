@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://elororojo.es
+
+# Sitemaps
+Sitemap: https://elororojo.es/sitemap.xml
