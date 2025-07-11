@@ -71,11 +71,11 @@ export function SiteFooter() {
           <div className="flex space-x-3 mt-1">
             {" "}
             {/* Reduced space-x */}
-            <Link href="https://www.facebook.com/profile.php?id=61578322670821" prefetch={false} aria-label="Facebook">
+            <Link href="https://www.facebook.com/profile.php?id=61578322670821" target="_blank" prefetch={false} aria-label="Facebook">
               <FacebookIcon className="h-4 w-4 text-muted-foreground hover:bg-muted hover:opacity-80 transition-all duration-200 p-0.5 rounded" />{" "}
               {/* Neutral hover */}
             </Link>
-            <Link href="https://www.instagram.com/azafranelororojo?igsh=MXZzdXh5bjJ1djl5bw==" prefetch={false} aria-label="Instagram">
+            <Link href="https://www.instagram.com/azafranelororojo?igsh=MXZzdXh5bjJ1djl5bw== "target="_blank" prefetch={false} aria-label="Instagram">
 
               <InstagramIcon className="h-4 w-4 text-muted-foreground hover:bg-muted hover:opacity-80 transition-all duration-200 p-0.5 rounded" />
             </Link>
