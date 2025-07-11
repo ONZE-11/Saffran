@@ -71,11 +71,12 @@ export function SiteFooter() {
           <div className="flex space-x-3 mt-1">
             {" "}
             {/* Reduced space-x */}
-            <Link href="#" prefetch={false} aria-label="Facebook">
+            <Link href="https://www.facebook.com/profile.php?id=61578322670821" prefetch={false} aria-label="Facebook">
               <FacebookIcon className="h-4 w-4 text-muted-foreground hover:bg-muted hover:opacity-80 transition-all duration-200 p-0.5 rounded" />{" "}
               {/* Neutral hover */}
             </Link>
-            <Link href="#" prefetch={false} aria-label="Instagram">
+            <Link href="https://www.instagram.com/azafranelororojo?igsh=MXZzdXh5bjJ1djl5bw==" prefetch={false} aria-label="Instagram">
+
               <InstagramIcon className="h-4 w-4 text-muted-foreground hover:bg-muted hover:opacity-80 transition-all duration-200 p-0.5 rounded" />
             </Link>
             <Link href="#" prefetch={false} aria-label="Twitter">
@@ -202,7 +203,7 @@ export function SiteFooter() {
                 className="hover:text-primary dark:hover:text-vibrant-orange-400 transition-colors duration-200 cursor-pointer text-left p-1 rounded"
                 title="Haga clic para enviar email o copiar dirección"
               >
-                mairesmaster@outlook.com
+                mairesmaster@gmail.com
               </button>
               {emailCopied && <span className="text-green-600 text-xs ml-1 animate-pulse">¡Copiado!</span>}
             </div>

@@ -199,23 +199,21 @@ export default function AdminOrdersTable() {
           className="px-3 py-2 text-sm transition bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-500"
         />
 
-      <DatePicker
-  selected={startDate}
-  onChange={(date) => setStartDate(date)}
-  placeholderText={t.from || "From"}
-  dateFormat="yyyy-MM-dd" // 👈 این فرمت اضافه شد
-  className="px-3 py-2 text-sm transition bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-500"
-/>
+        <DatePicker
+          selected={startDate}
+          onChange={(date) => setStartDate(date)}
+          placeholderText={t.from || "From"}
+          dateFormat="yyyy-MM-dd" // 👈 این فرمت اضافه شد
+          className="px-3 py-2 text-sm transition bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-500"
+        />
 
-<DatePicker
-  selected={endDate}
-  onChange={(date) => setEndDate(date)}
-  placeholderText={t.to || "To"}
-  dateFormat="yyyy-MM-dd" // 👈 این فرمت اضافه شد
-  className="px-3 py-2 text-sm transition bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-500"
-/>
-
-
+        <DatePicker
+          selected={endDate}
+          onChange={(date) => setEndDate(date)}
+          placeholderText={t.to || "To"}
+          dateFormat="yyyy-MM-dd" // 👈 این فرمت اضافه شد
+          className="px-3 py-2 text-sm transition bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-500"
+        />
       </div>
 
       {currentOrders.map((order) => {
@@ -239,7 +237,6 @@ export default function AdminOrdersTable() {
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-300">
                   {new Date(order.created_at).toISOString().slice(0, 10)}
-
                 </div>
                 <div className="text-sm text-gray-700 dark:text-gray-200">
                   {order.customer_name} | {order.customer_email} |{" "}

@@ -19,7 +19,7 @@ export default function ContactPage() {
   const { t } = useLocale();
   const [emailCopied, setEmailCopied] = useState(false);
 
-  const email = "mairesmaster@outlook.com";
+  const email = "mairesmaster@gmail.com";
 
   const handleEmailClick = () => {
     const subject = t("contactPage.emailSubject") || "Consulta desde Elororojo.es";
