@@ -8,6 +8,7 @@ import {
   ReactPortal,
   useEffect,
   useState,
+  useRef,
 } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -15,16 +16,11 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
-import { translations, Locale } from "@/lib/translations";
-import { useRef } from "react";
+import { translations } from "@/lib/translations";
 import { useLocale } from "@/context/locale-context";
 
-// ...
-
 export default function AdminOrdersTable() {
-  const { locale } = useLocale(); // 👈 از context بخون، نه prop
-
-  // Order types
+  const { locale } = useLocale();
 
   type OrderStatus = "new" | "processing" | "shipped" | "cancelled";
   type PaymentStatus = "paid" | "unpaid";
@@ -104,7 +100,7 @@ export default function AdminOrdersTable() {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentOrders = filteredOrders.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+  const totalPages = Math.max(1, Math.ceil(filteredOrders.length / itemsPerPage));
 
   const exportToExcel = () => {
     const data = filteredOrders.map((order) => {
@@ -158,13 +154,29 @@ export default function AdminOrdersTable() {
       t.deleteConfirm || "Are you sure you want to delete this order?"
     );
     if (!confirmed) return;
+
     const res = await fetch(`/api/admin/orders/${orderId}`, {
       method: "DELETE",
     });
+
     if (res.ok) {
-      setOrders((prev) => prev.filter((o) => o.order_id !== orderId));
+      const updatedOrders = orders.filter((o) => o.order_id !== orderId);
+      setOrders(updatedOrders);
+
+      // ✅ اگر صفحه خالی شد برو به صفحه قبلی
+      const remainingItemsOnPage = updatedOrders.slice(
+        indexOfFirstItem,
+        indexOfLastItem
+      );
+
+      if (remainingItemsOnPage.length === 0 && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+      }
+    } else {
+      alert(t.orderError || "Failed to delete order.");
     }
   };
+
 
   return (
     <div id="orders-container" ref={containerRef} className="space-y-6">
