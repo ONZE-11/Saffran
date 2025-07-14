@@ -153,17 +153,19 @@ export default function ContactPage() {
             </Card>
 
             {/* Contact Form */}
-            <div className="animate-fade-in" style={{ animationDelay: "0.5s" }}>
-              <OrderMessageForm
-                onSubmit={async () => {
-                  if (!isSignedIn) {
-                    setShowSignInModal(true); // 🔥 مودال SignIn باز کن
-                    return false; // ⛔ ارسال پیام متوقف
-                  }
-                  return true; // ✅ اجازه ارسال
-                }}
-              />
-            </div>
+            <Card className="p-8 shadow-2xl bg-gradient-to-br from-card to-muted/30 animate-fade-in border-2 border-orange-200/30 h-full flex flex-col justify-between">
+              <CardContent className="p-0">
+                <OrderMessageForm
+                  onSubmit={async () => {
+                    if (!isSignedIn) {
+                      setShowSignInModal(true); // 🔥 مودال SignIn باز کن
+                      return false; // ⛔ ارسال پیام متوقف
+                    }
+                    return true; // ✅ اجازه ارسال
+                  }}
+                />
+              </CardContent>
+            </Card>
           </div>
         </div>
         {/* Map */}

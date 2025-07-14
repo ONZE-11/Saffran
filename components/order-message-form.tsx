@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useLocale } from "@/context/locale-context";
+import { useUser } from "@clerk/nextjs";
 import { LoaderIcon, CheckCircleIcon, AlertCircleIcon } from "lucide-react";
 
 type FormStatus = "idle" | "loading" | "success" | "error";
@@ -24,6 +25,7 @@ type OrderMessageFormProps = {
 
 export default function OrderMessageForm({ onSubmit }: OrderMessageFormProps) {
   const { t } = useLocale();
+  const { user } = useUser();
   const [formStatus, setFormStatus] = useState<FormStatus>("idle");
   const [responseMessage, setResponseMessage] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
@@ -47,12 +49,12 @@ export default function OrderMessageForm({ onSubmit }: OrderMessageFormProps) {
     const formData = new FormData(formRef.current); // ✅ استفاده از ref
     const data = {
       name: formData.get("name"),
-      email: formData.get("email"),
       subject: formData.get("subject"),
       message: formData.get("message"),
+      email: user?.primaryEmailAddress?.emailAddress || "", // 📧 Clerk email
     };
 
-    console.log("📥 داده‌های فرم:", data);
+    console.log("📥 داده‌های فرم (با Clerk ایمیل):", data);
 
     try {
       const response = await fetch("/api/contact", {
@@ -104,17 +106,6 @@ export default function OrderMessageForm({ onSubmit }: OrderMessageFormProps) {
               name="name"
               type="text"
               placeholder="John Doe"
-              required
-            />
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="email">{t("common.emailAddress")}</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="you@example.com"
               required
             />
           </div>
