@@ -75,7 +75,7 @@ export function SiteFooter() {
               <FacebookIcon className="h-4 w-4 text-muted-foreground hover:bg-muted hover:opacity-80 transition-all duration-200 p-0.5 rounded" />{" "}
               {/* Neutral hover */}
             </Link>
-            <Link href="https://www.instagram.com/azafranelororojo?igsh=MXZzdXh5bjJ1djl5bw== "target="_blank" prefetch={false} aria-label="Instagram">
+            <Link href="https://www.instagram.com/elororojoazafran?igsh=MWhvaDgxN3Zqc2wwbQ%3D%3D&utm_source=qr"target="_blank" prefetch={false} aria-label="Instagram">
 
               <InstagramIcon className="h-4 w-4 text-muted-foreground hover:bg-muted hover:opacity-80 transition-all duration-200 p-0.5 rounded" />
             </Link>
