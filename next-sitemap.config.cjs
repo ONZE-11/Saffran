@@ -1,9 +1,10 @@
 /** @type {import('next-sitemap').IConfig} */
+// next-sitemap.config.js
 module.exports = {
-  siteUrl: "https://elororojo.es", // 🔥 آدرس دامنه‌ات
-  generateRobotsTxt: true, // (اختیاری) robots.txt هم بسازد
-  sitemapSize: 7000, // تعداد URL در هر فایل سایت‌مپ
+  siteUrl: "https://www.elororojo.es",
+  generateRobotsTxt: true,
+  sitemapSize: 7000,
   changefreq: "weekly",
   priority: 0.7,
-  exclude: ["/admin/*"], // صفحاتی که نمی‌خواهی ایندکس شوند
+  exclude: ["/admin/*"],
 };
