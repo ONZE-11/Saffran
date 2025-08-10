@@ -18,6 +18,17 @@ const playfairDisplay = Playfair_Display({
 export const metadata: Metadata = {
   title: "Elororojo.es",
   description: "Experience the golden touch of pure saffron.",
+   robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-snippet": -1,
+      "max-image-preview": "large",
+      "max-video-preview": -1,
+    },
+  },
 };
 
 export default function RootLayout({

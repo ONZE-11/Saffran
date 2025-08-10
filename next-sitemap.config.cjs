@@ -7,4 +7,11 @@ module.exports = {
   changefreq: "weekly",
   priority: 0.7,
   exclude: ["/admin/*"],
+  robotsTxtOptions: {
+  policies: [
+    { userAgent: "*", allow: "/", disallow: ["/admin", "/api/admin"] },
+  ],
+},
+
+
 };
