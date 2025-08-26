@@ -23,26 +23,30 @@
 // };
 
 // middleware.ts
+// middleware.ts
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-const isProtectedRoute = createRouteMatcher(["/admin(.*)", "/api/admin(.*)"]);
+const isProtectedRoute = createRouteMatcher([
+  "/admin(.*)", 
+  "/api/admin(.*)", 
+  "/api/contact" // 👈 الان محافظت شد
+]);
 
 export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {
     const { userId, redirectToSignIn } = await auth();
     if (!userId) {
-      // گزینه ۱: ریدایرکت استاندارد Clerk (با returnBackUrl)
       return redirectToSignIn({ returnBackUrl: req.url });
-
-      // یا گزینه ۲:
-      // return NextResponse.redirect(new URL("/sign-in", req.url));
     }
   }
   return NextResponse.next();
 });
 
-// فقط روی مسیرهای موردنیاز اجرا شود (به‌نفع سئو و پرفورمنس)
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*"],
+  matcher: [
+    "/admin/:path*",
+    "/api/admin/:path*",
+    "/api/contact",
+  ],
 };

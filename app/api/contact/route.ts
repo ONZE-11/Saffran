@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { pool } from "@/lib/db";
 import { getAuth } from "@clerk/nextjs/server";
 import { clerkClient } from "@clerk/clerk-sdk-node";
+import { transporter } from "@/lib/mailer";
 
+const adminEmails = process.env.ADMIN_EMAILS?.split(",") || [];
 
 // 📌 گرفتن ایمیل‌های ادمین از env
 const ADMIN_EMAILS: string[] = process.env.ADMIN_EMAILS
@@ -53,14 +55,17 @@ export async function GET(request: NextRequest) {
 }
 
 // =======================
-// 📌 POST → عمومی (فرم Contact)
+// 📌 POST → فقط برای لاگین‌ها
 // =======================
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, subject, message } = await request.json();
-    if (!name || !email || !message) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    const { userId } = getAuth(request);
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    // 🟢 اینجا email تعریف میشه
+    const { name, email, subject, message } = await request.json();
 
     await pool.query(
       `INSERT INTO contact_messages (name, email, subject, message, created_at)
@@ -68,10 +73,33 @@ export async function POST(request: NextRequest) {
       [name, email, subject || "", message]
     );
 
-    return NextResponse.json({ message: "Message received" });
+    // 🟢 همینجا استفاده کن
+    const adminEmails = process.env.ADMIN_EMAILS?.split(",") || [];
+    try {
+      const info = await transporter.sendMail({
+        from: `"El Oro Rojo" <${process.env.SMTP_USER}>`,
+        to: adminEmails,
+        subject: `📩 New Contact Message from ${name}`,
+        html: `
+          <h2>New Contact Message</h2>
+          <p><b>Name:</b> ${name}</p>
+          <p><b>Email:</b> ${email}</p>
+          ${subject ? `<p><b>Subject:</b> ${subject}</p>` : ""}
+          <p><b>Message:</b> ${message}</p>
+        `,
+      });
+      console.log("✅ Email sent:", info.messageId);
+    } catch (emailErr) {
+      console.error("❌ Email sending error:", emailErr);
+    }
+
+    return NextResponse.json({ message: "Message received & email sent" });
   } catch (err: any) {
     console.error("❌ Error in POST /api/contact:", err.message);
-    return NextResponse.json({ error: "Failed to submit message" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to submit message" },
+      { status: 500 }
+    );
   }
 }
 
