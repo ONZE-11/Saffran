@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  JSXElementConstructor,
-  Key,
-  ReactElement,
-  ReactNode,
-  ReactPortal,
-  useEffect,
-  useState,
-  useRef,
-} from "react";
+import { useEffect, useState, useRef } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import * as XLSX from "xlsx";
@@ -53,6 +44,42 @@ export default function AdminOrdersTable() {
 
   const t = translations[locale].common;
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // ✅ formatter for Euro
+  const currencyFormatter = new Intl.NumberFormat(
+    locale === "es" ? "es-ES" : "en-GB",
+    {
+      style: "currency",
+      currency: "EUR",
+    }
+  );
+
+  // ✅ formatter for Spain datetime → YYYY-MM-DD HH:mm
+  const formatDateTime = (dateString: string) => {
+    const date = new Date(dateString);
+
+    const optionsDate: Intl.DateTimeFormatOptions = {
+      timeZone: "Europe/Madrid",
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    };
+
+    const optionsTime: Intl.DateTimeFormatOptions = {
+      timeZone: "Europe/Madrid",
+      hour: "2-digit",
+      minute: "2-digit",
+    };
+
+    const [day, month, year] = date
+      .toLocaleDateString("es-ES", optionsDate)
+      .split("/"); // ["26","08","2025"]
+
+    const formattedDate = `${year}-${month}-${day}`;
+    const formattedTime = date.toLocaleTimeString("es-ES", optionsTime);
+
+    return `${formattedDate} , ${formattedTime}`;
+  };
 
   useEffect(() => {
     fetch("/api/admin/orders")
@@ -100,7 +127,10 @@ export default function AdminOrdersTable() {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentOrders = filteredOrders.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.max(1, Math.ceil(filteredOrders.length / itemsPerPage));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredOrders.length / itemsPerPage)
+  );
 
   const exportToExcel = () => {
     const data = filteredOrders.map((order) => {
@@ -119,10 +149,10 @@ export default function AdminOrdersTable() {
         Email: order.customer_email,
         Phone: order.customer_phone,
         Address: order.address,
-        Date: new Date(order.created_at).toLocaleString(),
+        Date: formatDateTime(order.created_at), // ✅ formatted datetime
         Status: order.status,
         Payment: order.payment_status,
-        Total: total.toFixed(2),
+        Total: currencyFormatter.format(total),
       };
     });
 
@@ -163,7 +193,6 @@ export default function AdminOrdersTable() {
       const updatedOrders = orders.filter((o) => o.order_id !== orderId);
       setOrders(updatedOrders);
 
-      // ✅ اگر صفحه خالی شد برو به صفحه قبلی
       const remainingItemsOnPage = updatedOrders.slice(
         indexOfFirstItem,
         indexOfLastItem
@@ -177,7 +206,6 @@ export default function AdminOrdersTable() {
     }
   };
 
-
   return (
     <div id="orders-container" ref={containerRef} className="space-y-6">
       <div className="mb-4 p-4 bg-indigo-100 dark:bg-indigo-800 rounded-lg shadow-sm text-sm font-medium flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -185,7 +213,7 @@ export default function AdminOrdersTable() {
           📦 {t.totalOrders}: {totalOrders}
         </div>
         <div className="text-indigo-800 dark:text-white">
-          💰 {t.totalRevenue}: ${totalRevenue.toFixed(2)}
+          💰 {t.totalRevenue}: {currencyFormatter.format(totalRevenue)}
         </div>
         <div className="flex gap-2">
           <button
@@ -202,6 +230,8 @@ export default function AdminOrdersTable() {
           </button>
         </div>
       </div>
+
+      {/* filters */}
       <div className="flex gap-4 items-center flex-wrap">
         <input
           type="text"
@@ -215,7 +245,7 @@ export default function AdminOrdersTable() {
           selected={startDate}
           onChange={(date) => setStartDate(date)}
           placeholderText={t.from || "From"}
-          dateFormat="yyyy-MM-dd" // 👈 این فرمت اضافه شد
+          dateFormat="yyyy-MM-dd"
           className="px-3 py-2 text-sm transition bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-500"
         />
 
@@ -223,11 +253,12 @@ export default function AdminOrdersTable() {
           selected={endDate}
           onChange={(date) => setEndDate(date)}
           placeholderText={t.to || "To"}
-          dateFormat="yyyy-MM-dd" // 👈 این فرمت اضافه شد
+          dateFormat="yyyy-MM-dd"
           className="px-3 py-2 text-sm transition bg-gray-50 dark:bg-gray-800 text-gray-800 dark:text-white border border-gray-300 dark:border-gray-600 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 dark:focus:ring-indigo-600 focus:border-indigo-500 dark:focus:border-indigo-500"
         />
       </div>
 
+      {/* order list */}
       {currentOrders.map((order) => {
         const totalInvoice = order.items.reduce(
           (sum: number, item) => sum + parseFloat(item.total_price as string),
@@ -248,7 +279,7 @@ export default function AdminOrdersTable() {
                   #{order.order_id}
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-300">
-                  {new Date(order.created_at).toISOString().slice(0, 10)}
+                  {formatDateTime(order.created_at)}
                 </div>
                 <div className="text-sm text-gray-700 dark:text-gray-200">
                   {order.customer_name} | {order.customer_email} |{" "}
@@ -260,10 +291,10 @@ export default function AdminOrdersTable() {
                 </div>
               </div>
               <div className="text-sm text-gray-700 dark:text-gray-200">
-                🛒 {totalQuantity} | 💰 ${totalInvoice.toFixed(2)}
+                🛒 {totalQuantity} | 💰 {currencyFormatter.format(totalInvoice)}
               </div>
               <div className="flex flex-wrap items-center justify-end gap-2">
-                {/* Payment status first */}
+                {/* payment status */}
                 <select
                   value={order.payment_status}
                   onChange={async (e) => {
@@ -296,7 +327,7 @@ export default function AdminOrdersTable() {
                   <option value="paid">{t.paid}</option>
                 </select>
 
-                {/* Order status */}
+                {/* order status */}
                 <select
                   value={order.status}
                   onChange={async (e) => {
@@ -335,7 +366,7 @@ export default function AdminOrdersTable() {
                   <option value="cancelled">{t.cancelled}</option>
                 </select>
 
-                {/* Delete button */}
+                {/* delete */}
                 <button
                   onClick={() => handleDelete(order.order_id)}
                   className="text-xs px-2 py-1 rounded bg-red-500 text-white hover:bg-red-600 transition-all duration-200 flex items-center gap-1"
@@ -348,6 +379,7 @@ export default function AdminOrdersTable() {
               </div>
             </div>
 
+            {/* items table */}
             <div className="overflow-x-auto">
               <table className="min-w-full text-sm border">
                 <thead className="bg-indigo-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100">
@@ -365,15 +397,18 @@ export default function AdminOrdersTable() {
                       <td className="p-2 border text-center text-gray-800 dark:text-gray-100">
                         {item.product_name}
                       </td>
-
                       <td className="p-2 border text-center text-gray-800 dark:text-gray-100">
                         {item.quantity}
                       </td>
                       <td className="p-2 border text-center text-gray-800 dark:text-gray-100">
-                        ${parseFloat(item.price.toString()).toFixed(2)}
+                        {currencyFormatter.format(
+                          parseFloat(item.price.toString())
+                        )}
                       </td>
                       <td className="p-2 border text-center text-gray-800 dark:text-gray-100">
-                        ${parseFloat(item.total_price.toString()).toFixed(2)}
+                        {currencyFormatter.format(
+                          parseFloat(item.total_price.toString())
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -384,7 +419,7 @@ export default function AdminOrdersTable() {
                     <td className="p-2 border text-center">{totalQuantity}</td>
                     <td className="p-2 border text-center"></td>
                     <td className="p-2 border text-center">
-                      ${totalInvoice.toFixed(2)}
+                      {currencyFormatter.format(totalInvoice)}
                     </td>
                   </tr>
                 </tbody>
@@ -394,6 +429,7 @@ export default function AdminOrdersTable() {
         );
       })}
 
+      {/* pagination */}
       <div className="flex justify-center items-center gap-4 mt-4 text-sm">
         <button
           onClick={() => {

@@ -88,14 +88,6 @@ export default function CheckoutPage() {
 
     const fullAddress = `${form.street}, Unit ${form.unitNumber}, ${form.city}, ${form.postalCode}. ${form.additionalInfo}`;
 
-    console.log("🛒 Submitting order:", {
-      customer_name: form.name,
-      customer_email: userEmail,
-      customer_phone: form.phone,
-      address: fullAddress,
-      items: cartItems,
-    });
-
     try {
       const response = await fetch("/api/orders", {
         method: "POST",
@@ -115,18 +107,12 @@ export default function CheckoutPage() {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        console.log("✅ Order saved successfully:", data.order_id);
         clearCart();
-
-        // ✅ نمایش Toast موفقیت
         toast.success(t.orderSuccess, { duration: 2000 });
-
-        // ⏳ کمی تأخیر قبل از ریدایرکت
         setTimeout(() => {
           router.push("/checkout/success");
         }, 2000);
       } else {
-        console.error("❌ API error:", data.error);
         toast.error(t.orderError, { duration: 3000 });
       }
     } catch (error) {
@@ -148,48 +134,74 @@ export default function CheckoutPage() {
             onSubmit={handleSubmit}
             className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 rounded-2xl shadow-lg bg-white/90 dark:bg-gray-900/90 border border-gray-200 dark:border-gray-700 backdrop-blur-sm"
           >
+            {/* Full Name */}
             <Input
               name="name"
               placeholder={t.name}
               value={form.name}
               onChange={handleChange}
               required
+              pattern="^[A-Za-zÀ-ÿ\s]{2,50}$"
+              title="Name must be 2–50 characters, letters only"
             />
+
+            {/* Phone Number */}
             <Input
               name="phone"
               placeholder={t.phone}
               value={form.phone}
               onChange={handleChange}
               required
+              type="tel"
+              pattern="^\+?[0-9]{7,15}$"
+              title="Phone number must be 7–15 digits (optional + sign)"
             />
+
+            {/* Street */}
             <Input
               name="street"
               placeholder={t.street}
               value={form.street}
               onChange={handleChange}
               required
+              pattern="^[A-Za-z0-9\s\-]{2,100}$"
+              title="Street address must be at least 2 characters"
             />
+
+            {/* Unit Number */}
             <Input
               name="unitNumber"
               placeholder={t.unitNumber}
               value={form.unitNumber}
               onChange={handleChange}
               required
+              pattern="^[A-Za-z0-9\-]{1,10}$"
+              title="Unit number can include letters, numbers, or dashes"
             />
+
+            {/* City */}
             <Input
               name="city"
               placeholder={t.city}
               value={form.city}
               onChange={handleChange}
               required
+              pattern="^[A-Za-zÀ-ÿ\s]{2,50}$"
+              title="City name must be 2–50 characters"
             />
+
+            {/* Postal Code (International – flexible) */}
             <Input
               name="postalCode"
               placeholder={t.postalCode}
               value={form.postalCode}
               onChange={handleChange}
               required
+              pattern="^[A-Za-z0-9\s\-]{3,12}$"
+              title="Postal code must be 3–12 characters (letters, numbers, spaces or dash)"
             />
+
+            {/* Additional Info */}
             <Textarea
               name="additionalInfo"
               placeholder={t.additionalInfo}

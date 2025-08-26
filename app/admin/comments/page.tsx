@@ -1,5 +1,3 @@
-// Beautified Admin Comments Page with enhanced UI
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -8,8 +6,6 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-
-// Message Type
 
 type Message = {
   id: number;
@@ -21,6 +17,34 @@ type Message = {
 };
 
 const MESSAGES_PER_PAGE = 5;
+
+// ✅ Helper برای تاریخ اسپانیا
+const formatDateTime = (dateString: string) => {
+  const date = new Date(dateString);
+
+  const optionsDate: Intl.DateTimeFormatOptions = {
+    timeZone: "Europe/Madrid",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  };
+
+  const optionsTime: Intl.DateTimeFormatOptions = {
+    timeZone: "Europe/Madrid",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  };
+
+  const [day, month, year] = date
+    .toLocaleDateString("es-ES", optionsDate)
+    .split("/");
+
+  const formattedDate = `${year}-${month}-${day}`;
+  const formattedTime = date.toLocaleTimeString("es-ES", optionsTime);
+
+  return `${formattedDate}, ${formattedTime}`;
+};
 
 export default function AdminCommentsPageClient() {
   const { locale } = useLocale();
@@ -74,6 +98,15 @@ export default function AdminCommentsPageClient() {
   }, [search, startDate, endDate, messages]);
 
   const deleteMessage = async (id: number) => {
+    if (
+      !confirm(
+        locale === "es"
+          ? "¿Seguro que quieres eliminar este mensaje?"
+          : "Are you sure you want to delete this message?"
+      )
+    ) {
+      return;
+    }
     const res = await fetch(`/api/contact/${id}`, { method: "DELETE" });
     if (res.ok) {
       setMessages((prev) => prev.filter((m) => m.id !== id));
@@ -166,9 +199,7 @@ export default function AdminCommentsPageClient() {
             {paginated.map((msg) => (
               <div
                 key={msg.id}
-                className="rounded-xl p-5 bg-white dark:bg-gray-900 border shadow-lg transition-shadow duration-300 hover:[box-shadow:0_4px_20px_#4b5563] dark:hover:[box-shadow:0_4px_20px_#c7d2f7]"
-
-
+                className="rounded-xl p-5 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 border shadow-md hover:shadow-lg transition"
               >
                 <div className="flex justify-between items-center mb-3">
                   <div>
@@ -178,7 +209,7 @@ export default function AdminCommentsPageClient() {
                     <p className="text-sm text-muted-foreground">{msg.email}</p>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {new Date(msg.created_at).toLocaleString(locale)}
+                    {formatDateTime(msg.created_at)}
                   </p>
                 </div>
                 {msg.subject && (
@@ -204,52 +235,51 @@ export default function AdminCommentsPageClient() {
 
         {paginated.length > 0 && (
           <div className="flex justify-center gap-2 mt-10 flex-wrap">
-  {currentPage > 1 && (
-    <button
-      onClick={() => {
-        setCurrentPage(currentPage - 1);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }}
-      className="px-3 py-1 rounded border bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600"
-    >
-      {locale === "es" ? "Anterior" : "Prev"}
-    </button>
-  )}
-  {getPageNumbers(currentPage, totalPages).map((page, index) =>
-    page === "..." ? (
-      <span key={index} className="px-3 py-1 text-gray-400">
-        ...
-      </span>
-    ) : (
-      <button
-        key={page}
-        onClick={() => {
-          setCurrentPage(page as number);
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }}
-        className={`px-3 py-1 rounded font-medium border transition-colors duration-200 ${
-          page === currentPage
-            ? "bg-blue-600 text-white border-blue-600"
-            : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-white border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600"
-        }`}
-      >
-        {page}
-      </button>
-    )
-  )}
-  {currentPage < totalPages && (
-    <button
-      onClick={() => {
-        setCurrentPage(currentPage + 1);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      }}
-      className="px-3 py-1 rounded border bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600"
-    >
-      {locale === "es" ? "Siguiente" : "Next"}
-    </button>
-  )}
-</div>
-
+            {currentPage > 1 && (
+              <button
+                onClick={() => {
+                  setCurrentPage(currentPage - 1);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className="px-3 py-1 rounded border bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600"
+              >
+                {locale === "es" ? "Anterior" : "Prev"}
+              </button>
+            )}
+            {getPageNumbers(currentPage, totalPages).map((page, index) =>
+              page === "..." ? (
+                <span key={index} className="px-3 py-1 text-gray-400">
+                  ...
+                </span>
+              ) : (
+                <button
+                  key={page}
+                  onClick={() => {
+                    setCurrentPage(page as number);
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }}
+                  className={`px-3 py-1 rounded font-medium border transition-colors duration-200 ${
+                    page === currentPage
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-white border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600"
+                  }`}
+                >
+                  {page}
+                </button>
+              )
+            )}
+            {currentPage < totalPages && (
+              <button
+                onClick={() => {
+                  setCurrentPage(currentPage + 1);
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                className="px-3 py-1 rounded border bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600"
+              >
+                {locale === "es" ? "Siguiente" : "Next"}
+              </button>
+            )}
+          </div>
         )}
       </main>
       <SiteFooter />

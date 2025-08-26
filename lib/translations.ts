@@ -222,7 +222,14 @@ export const translations = {
       priceHighToLow: "Precio: Mayor a Menor",
       newest: "Más reciente",
     },
-
+     contactForm: {
+    subjectPlaceholder: "Asunto (opcional)",
+    messagePlaceholder: "Escribe tu mensaje aquí...",
+    successMessage: "✅ Mensaje enviado con éxito.",
+    errorMessage: "❌ Hubo un problema al enviar.",
+    networkError: "❌ Error de red. Inténtalo de nuevo.",
+  },
+ 
     common: {
       paid: "Pagado",
       unpaid: "No Pagado",
@@ -392,6 +399,10 @@ export const translations = {
       formTitle: "Formulario de Contacto",
       formDescription:
         "Envíanos tu consulta y te responderemos lo antes posible.",
+
+        copyEmail: "Copiar correo",
+    emailSubject: "Consulta desde Elororojo.es",
+    emailBody: "Hola, me gustaría obtener más información sobre sus productos de azafrán.",
     },
   },
 };

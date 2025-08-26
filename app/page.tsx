@@ -11,6 +11,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { useCart } from "@/context/cart-context";
 import { useEffect, useRef, useState } from "react";
 
+
 export default function HomePage() {
   const products = useProducts();
   const { locale } = useLocale();

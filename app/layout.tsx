@@ -1,3 +1,4 @@
+// app/layout.tsx
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
@@ -6,19 +7,19 @@ import { LocaleProvider } from "@/context/locale-context";
 import { CartProvider } from "@/context/cart-context";
 import { ProductsProvider } from "@/context/ProductsContext";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Toaster } from "react-hot-toast"
+import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
-const playfairDisplay = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-serif",
-  display: "swap",
-});
+const playfairDisplay = Playfair_Display({ subsets: ["latin"], variable: "--font-serif", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Elororojo.es",
+  metadataBase: new URL("https://www.elororojo.es"),
+  title: {
+    default: "Elororojo.es",
+    template: "%s | Elororojo.es",
+  },
   description: "Experience the golden touch of pure saffron.",
-   robots: {
+  robots: {
     index: true,
     follow: true,
     googleBot: {
@@ -31,24 +32,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider>
-      <html lang="en" suppressHydrationWarning>
-        <body
-          className={`${inter.variable} ${playfairDisplay.variable} font-sans`}
-        >
+      <html lang="es" suppressHydrationWarning>
+        <body className={`${inter.variable} ${playfairDisplay.variable} font-sans`}>
           <ProductsProvider>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
               <LocaleProvider>
                 <CartProvider>{children}</CartProvider>
               </LocaleProvider>
