@@ -53,21 +53,13 @@ export async function GET(request: NextRequest) {
 }
 
 // =======================
-// 📌 POST → فقط برای لاگین‌ها
+// 📌 POST → عمومی (فرم Contact)
 // =======================
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = getAuth(request);
-    if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { name, email, subject, message } = await request.json();
     if (!name || !email || !message) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     await pool.query(
@@ -79,10 +71,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: "Message received" });
   } catch (err: any) {
     console.error("❌ Error in POST /api/contact:", err.message);
-    return NextResponse.json(
-      { error: "Failed to submit message" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to submit message" }, { status: 500 });
   }
 }
 
