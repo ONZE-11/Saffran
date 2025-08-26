@@ -73,24 +73,24 @@ export async function POST(request: NextRequest) {
     );
 
     // 🟢 همینجا استفاده کن
-    const adminEmails = process.env.ADMIN_EMAILS?.split(",") || [];
-    try {
-      const info = await transporter.sendMail({
-        from: `"El Oro Rojo" <${process.env.SMTP_USER}>`,
-        to: adminEmails,
-        subject: `📩 New Contact Message from ${name}`,
-        html: `
-          <h2>New Contact Message</h2>
-          <p><b>Name:</b> ${name}</p>
-          <p><b>Email:</b> ${email}</p>
-          ${subject ? `<p><b>Subject:</b> ${subject}</p>` : ""}
-          <p><b>Message:</b> ${message}</p>
-        `,
-      });
-      console.log("✅ Email sent:", info.messageId);
-    } catch (emailErr) {
-      console.error("❌ Email sending error:", emailErr);
-    }
+    // const adminEmails = process.env.ADMIN_EMAILS?.split(",") || [];
+    // try {
+    //   const info = await transporter.sendMail({
+    //     from: `"El Oro Rojo" <${process.env.SMTP_USER}>`,
+    //     to: adminEmails,
+    //     subject: `📩 New Contact Message from ${name}`,
+    //     html: `
+    //       <h2>New Contact Message</h2>
+    //       <p><b>Name:</b> ${name}</p>
+    //       <p><b>Email:</b> ${email}</p>
+    //       ${subject ? `<p><b>Subject:</b> ${subject}</p>` : ""}
+    //       <p><b>Message:</b> ${message}</p>
+    //     `,
+    //   });
+    //   console.log("✅ Email sent:", info.messageId);
+    // } catch (emailErr) {
+    //   console.error("❌ Email sending error:", emailErr);
+    // }
 
     return NextResponse.json({ message: "Message received & email sent" });
   } catch (err: any) {
