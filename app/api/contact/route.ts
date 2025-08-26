@@ -4,16 +4,15 @@ import { getAuth } from "@clerk/nextjs/server";
 import { clerkClient } from "@clerk/clerk-sdk-node";
 import { transporter } from "@/lib/mailer";
 
-const adminEmails = process.env.ADMIN_EMAILS?.split(",") || [];
 
 // 📌 گرفتن ایمیل‌های ادمین از env
 const ADMIN_EMAILS: string[] = process.env.ADMIN_EMAILS
-  ? process.env.ADMIN_EMAILS.split(",").map((e) => e.trim())
+  ? process.env.ADMIN_EMAILS.split(",").map((e) => e.trim().toLowerCase())
   : [];
 
-// 🔒 بررسی اینکه کاربر ادمین است یا خیر
 const isAdmin = (email: string | undefined | null): boolean =>
-  !!email && ADMIN_EMAILS.includes(email);
+  !!email && ADMIN_EMAILS.includes(email.toLowerCase());
+
 
 // 📥 گرفتن ایمیل کاربر لاگین‌شده از Clerk
 const getUserEmail = async (userId: string): Promise<string | null> => {
