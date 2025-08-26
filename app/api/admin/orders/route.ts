@@ -2,24 +2,16 @@ import { NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { pool } from "@/lib/db";
 
-// 📌 گرفتن ایمیل‌های ادمین از env
-const ADMIN_EMAILS: string[] = process.env.ADMIN_EMAILS
-  ? process.env.ADMIN_EMAILS.split(",").map((e) => e.trim())
-  : [];
 
 export async function GET() {
   try {
     const user = await currentUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const adminEmails = ["mahjoubia509@gmail.com", "mairesmaster@outlook.com"];
+
+    if (!user || !adminEmails.includes(user.emailAddresses[0].emailAddress)) {
+      return NextResponse.json([], { status: 403 });
     }
 
-    const email = user.emailAddresses[0]?.emailAddress;
-    if (!ADMIN_EMAILS.includes(email)) {
-      return NextResponse.json({ error: "Access denied" }, { status: 403 });
-    }
-
-    // 📌 دریافت سفارش‌ها
     const [rows] = await pool.query(`
       SELECT 
         o.id AS order_id,
@@ -40,8 +32,8 @@ export async function GET() {
       ORDER BY o.created_at DESC;
     `);
 
-    // 📌 گروه‌بندی سفارش‌ها
     const grouped = new Map();
+
     for (const row of rows as any[]) {
       if (!grouped.has(row.order_id)) {
         grouped.set(row.order_id, {
@@ -66,11 +58,8 @@ export async function GET() {
     }
 
     return NextResponse.json(Array.from(grouped.values()), { status: 200 });
-  } catch (err: any) {
-    console.error("❌ Error in GET /api/admin/orders:", err.message);
-    return NextResponse.json(
-      { error: "Failed to fetch orders", details: err.message },
-      { status: 500 }
-    );
+  } catch (err) {
+    console.error("❌ Error in orders route:", err);
+    return NextResponse.json([], { status: 500 });
   }
 }
