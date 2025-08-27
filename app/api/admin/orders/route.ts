@@ -1,15 +1,17 @@
 import { NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { pool } from "@/lib/db";
-
+import { ADMIN_EMAILS } from "@/lib/auth";
 
 export async function GET() {
   try {
     const user = await currentUser();
-    const adminEmails = ["mahjoubia509@gmail.com", "mairesmaster@outlook.com"];
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    if (!user || !adminEmails.includes(user.emailAddresses[0].emailAddress)) {
-      return NextResponse.json([], { status: 403 });
+    const email = user.emailAddresses[0]?.emailAddress.toLowerCase();
+    if (!ADMIN_EMAILS.includes(email)) {
+      console.warn("🚨 Access denied for:", email);
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
     const [rows] = await pool.query(`
@@ -33,7 +35,6 @@ export async function GET() {
     `);
 
     const grouped = new Map();
-
     for (const row of rows as any[]) {
       if (!grouped.has(row.order_id)) {
         grouped.set(row.order_id, {
@@ -48,7 +49,6 @@ export async function GET() {
           items: [],
         });
       }
-
       grouped.get(row.order_id).items.push({
         product_name: row.product_name,
         quantity: row.quantity,
@@ -58,8 +58,8 @@ export async function GET() {
     }
 
     return NextResponse.json(Array.from(grouped.values()), { status: 200 });
-  } catch (err) {
-    console.error("❌ Error in orders route:", err);
-    return NextResponse.json([], { status: 500 });
+  } catch (err: any) {
+    console.error("❌ Error in GET /api/admin/orders:", err.message);
+    return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 });
   }
 }
