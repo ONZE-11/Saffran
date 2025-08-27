@@ -15,6 +15,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useAuth, SignIn } from "@clerk/nextjs";
+import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 
 export default function ContactPage() {
   const { t } = useLocale();
@@ -155,15 +156,22 @@ export default function ContactPage() {
             {/* Contact Form */}
             <Card className="p-8 shadow-2xl bg-gradient-to-br from-card to-muted/30 animate-fade-in border-2 border-orange-200/30 h-full flex flex-col justify-between">
               <CardContent className="p-0">
-                <OrderMessageForm
-                  onSubmit={async () => {
-                    if (!isSignedIn) {
-                      setShowSignInModal(true); // 🔥 مودال SignIn باز کن
-                      return false; // ⛔ ارسال پیام متوقف
-                    }
-                    return true; // ✅ اجازه ارسال
-                  }}
-                />
+                <SignedIn>
+                  <OrderMessageForm />
+                </SignedIn>
+                <SignedOut>
+  <div className="flex flex-col items-center justify-center space-y-4">
+    <p className="text-muted-foreground text-center text-base leading-relaxed">
+      {t("contactPage.signInRequiredMessage")}
+    </p>
+    <SignInButton mode="modal">
+      <Button className="bg-orange-600 hover:bg-orange-700 text-white">
+        {t("contactPage.signInButton")}
+      </Button>
+    </SignInButton>
+  </div>
+</SignedOut>
+
               </CardContent>
             </Card>
           </div>

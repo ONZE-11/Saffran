@@ -191,6 +191,10 @@ export const translations = {
       formTitle: "Contact Form",
       formDescription:
         "Send us your inquiry and we will get back to you as soon as possible.",
+
+      signInToSend: "Sign in to send us a message",
+      signInRequiredMessage: "Please sign in to send us a message.",
+      signInButton: "Sign In",
     },
   },
 
@@ -222,14 +226,14 @@ export const translations = {
       priceHighToLow: "Precio: Mayor a Menor",
       newest: "Más reciente",
     },
-     contactForm: {
-    subjectPlaceholder: "Asunto (opcional)",
-    messagePlaceholder: "Escribe tu mensaje aquí...",
-    successMessage: "✅ Mensaje enviado con éxito.",
-    errorMessage: "❌ Hubo un problema al enviar.",
-    networkError: "❌ Error de red. Inténtalo de nuevo.",
-  },
- 
+    contactForm: {
+      subjectPlaceholder: "Asunto (opcional)",
+      messagePlaceholder: "Escribe tu mensaje aquí...",
+      successMessage: "✅ Mensaje enviado con éxito.",
+      errorMessage: "❌ Hubo un problema al enviar.",
+      networkError: "❌ Error de red. Inténtalo de nuevo.",
+    },
+
     common: {
       paid: "Pagado",
       unpaid: "No Pagado",
@@ -400,9 +404,15 @@ export const translations = {
       formDescription:
         "Envíanos tu consulta y te responderemos lo antes posible.",
 
-        copyEmail: "Copiar correo",
-    emailSubject: "Consulta desde Elororojo.es",
-    emailBody: "Hola, me gustaría obtener más información sobre sus productos de azafrán.",
+      copyEmail: "Copiar correo",
+      emailSubject: "Consulta desde Elororojo.es",
+      emailBody:
+        "Hola, me gustaría obtener más información sobre sus productos de azafrán.",
+
+      signInToSend: "Inicia sesión para enviarnos un mensaje",
+      signInRequiredMessage:
+        "Por favor, inicia sesión para enviarnos un mensaje.",
+      signInButton: "Iniciar sesión",
     },
   },
 };
