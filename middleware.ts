@@ -23,20 +23,20 @@
 // };
 
 // middleware.ts
+// middleware.ts
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 const isProtectedRoute = createRouteMatcher([
   "/admin(.*)", 
   "/api/admin(.*)", 
-  "/api/contact" // مسیر تماس هم محافظت شد
+  "/api/contact" // 👈 الان محافظت شد
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {
     const { userId, redirectToSignIn } = await auth();
     if (!userId) {
-      console.warn("🚨 Unauthorized access attempt:", req.url);
       return redirectToSignIn({ returnBackUrl: req.url });
     }
   }
