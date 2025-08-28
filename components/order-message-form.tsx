@@ -26,6 +26,8 @@ export default function OrderMessageForm() {
   const [captchaToken, setCaptchaToken] = useState<string>(""); // ✅ کپچا
   const formRef = useRef<HTMLFormElement>(null);
 
+   console.log("✅ Sitekey (from env):", process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
