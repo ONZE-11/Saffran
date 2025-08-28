@@ -3,7 +3,6 @@ import { pool } from "@/lib/db";
 import { getAuth } from "@clerk/nextjs/server";
 import { clerkClient } from "@clerk/clerk-sdk-node";
 
-
 // 📌 گرفتن ایمیل‌های ادمین از env
 const ADMIN_EMAILS: string[] = process.env.ADMIN_EMAILS
   ? process.env.ADMIN_EMAILS.split(",").map((e) => e.trim())
@@ -23,13 +22,12 @@ const getUserEmail = async (userId: string): Promise<string | null> => {
     return null;
   }
 };
-
 // =======================
 // 📌 GET → فقط برای ادمین
 // =======================
 export async function GET(request: NextRequest) {
   try {
-    const { userId } = getAuth(request);
+    const { userId } = getAuth(request) ?? {};
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -39,12 +37,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
-    const [rows] = await pool.query(
+    const [rows]: any = await pool.query(
       "SELECT * FROM contact_messages ORDER BY created_at DESC"
     );
+
+    console.log("📩 Messages fetched:", rows?.length ?? 0);
     return NextResponse.json(rows);
   } catch (err: any) {
-    console.error("❌ Error in GET /api/contact:", err.message);
+    console.error("❌ Error in GET /api/contact:", err);
     return NextResponse.json(
       { error: "Failed to fetch messages", details: err.message },
       { status: 500 }
@@ -52,16 +52,36 @@ export async function GET(request: NextRequest) {
   }
 }
 
+
 // =======================
-// 📌 POST → عمومی (فرم Contact)
+// 📌 POST → عمومی (فرم Contact + Turnstile)
 // =======================
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, subject, message } = await request.json();
+    const { name, email, subject, message, ["cf-turnstile-response"]: token } = await request.json();
+
+    // ✅ چک فیلدهای اجباری
     if (!name || !email || !message) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    // ✅ چک کپچا
+    if (!token) {
+      return NextResponse.json({ error: "Captcha missing" }, { status: 400 });
+    }
+
+    const captchaRes = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `secret=${process.env.TURNSTILE_SECRET_KEY}&response=${token}`,
+    });
+
+    const captchaData = await captchaRes.json();
+    if (!captchaData.success) {
+      return NextResponse.json({ error: "Captcha failed" }, { status: 400 });
+    }
+
+    // ✅ ذخیره در دیتابیس
     await pool.query(
       `INSERT INTO contact_messages (name, email, subject, message, created_at)
        VALUES (?, ?, ?, ?, NOW())`,

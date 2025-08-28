@@ -3,9 +3,8 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 const isProtectedRoute = createRouteMatcher([
-  "/admin(.*)",      // صفحات ادمین
-  "/api/admin(.*)",  // API ادمین
-  "/api/contact",    // تماس (فقط لاگین کرده‌ها)
+  "/admin(.*)", // صفحات ادمین
+  "/api/admin(.*)", // API ادمین
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
@@ -24,6 +23,7 @@ export const config = {
   matcher: [
     "/admin/:path*",
     "/api/admin/:path*",
-    "/api/contact",
+    "/api/contact/:path*",   // 👈 اضافه کن
   ],
 };
+

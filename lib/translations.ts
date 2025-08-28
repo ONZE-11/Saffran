@@ -49,8 +49,10 @@ export const translations = {
       previous: "Previous",
       next: "Next",
       subjectOptional: "Subject (optional)",
-      yourMessage: "Your message",
-      sendMessage: "Send message",
+      yourName: "Your Name",
+      yourEmail: "Your Email", // ✅ اضافه شد
+      yourMessage: "Your Message",
+      sendMessage: "Send Message",
       fastDelivery: "Fast Delivery",
       securePackaging: "Secure Packaging",
       naturalProduct: "Natural Product",
@@ -82,7 +84,6 @@ export const translations = {
       allRightsReserved: "All rights reserved.",
       inquireToOrder: "Inquire to Order",
       sendInquiry: "Send Inquiry",
-      yourName: "Your Name",
       emailAddress: "Email Address",
       phoneNumber: "Phone Number",
       shippingAddress: "Shipping Address",
@@ -118,9 +119,21 @@ export const translations = {
       pdf: "PDF",
       orderSuccess: "✅ Order submitted successfully!",
       orderError: "❌ Something went wrong. Please try again.",
+
+      sending: "Sending",
+    },
+
+    contactForm: {
+      subjectPlaceholder: "Enter a subject", // ✅ اضافه شد
+      messagePlaceholder: "Type your message here...", // ✅ اضافه شد
+      successMessage: "✅ Message sent successfully.",
+      errorMessage: "❌ Failed to send message.",
+      networkError: "❌ Network error. Please try again.",
     },
 
     homepage: {
+      heroDescription:
+        "Discover our authentic saffron and enjoy its unique aroma and flavor.", // ✅ اضافه شد
       aboutTitle: "About Our Saffron",
       aboutText:
         "We are a wholesale saffron supplier committed to delivering the highest quality saffron directly from trusted farms. Our products are lab-tested, rich in aroma, and ethically sourced.",
@@ -138,17 +151,16 @@ export const translations = {
       featuredProductsDescription:
         "Discover our exclusive selection of top-grade saffron, hand-picked for flavor, aroma, and purity. Trusted by chefs, exporters, and herbal product makers.",
     },
+
     aboutPage: {
       title: "About Us",
       description:
         "Discover the story behind our premium saffron – from hand-picked farms to your table.",
-
       fromFieldToTableTitle: "From Field to Table",
       fromFieldToTableDescription1:
         "Our saffron is carefully hand-harvested from the finest crocus flowers grown in traditional farms. Each thread reflects a legacy of care and craftsmanship.",
       fromFieldToTableDescription2:
         "From planting to picking, we ensure sustainable practices that honor nature and preserve purity.",
-
       purityQualityTitle: "Purity & Quality, Always",
       purityQualityDescription1:
         "We pride ourselves on delivering 100% pure saffron, free from additives, dyes, or artificial substances. Every batch is lab-tested for authenticity.",
@@ -167,34 +179,34 @@ export const translations = {
       why3Desc:
         "All orders come in premium packaging and are delivered quickly with care.",
     },
+
     contactPage: {
       title: "Contact Us",
       description:
         "We're here to help you with your saffron inquiries and orders.",
-
       getInTouchTitle: "Get in Touch",
       getInTouchDescription:
         "Feel free to reach us via email or phone for personalized assistance.",
-
       email: "Email",
       emailHelp: "Click to open your email client or copy the address",
-
       phone: "Phone",
       address: "Address",
       addressLine1: "Elororojo.es",
       addressLine2: "Avenida Francia, N45",
       addressLine3: "Valencia",
       addressLine4: "Spain",
-
       findUsOnMap: "Find Us on the Map",
-
       formTitle: "Contact Form",
       formDescription:
         "Send us your inquiry and we will get back to you as soon as possible.",
-
       signInToSend: "Sign in to send us a message",
       signInRequiredMessage: "Please sign in to send us a message.",
       signInButton: "Sign In",
+      // ✅ اضافه‌های هماهنگ با اسپانیایی
+      copyEmail: "Copy Email",
+      emailSubject: "Inquiry from Elororojo.es",
+      emailBody:
+        "Hello, I would like to get more information about your saffron products.",
     },
   },
 

@@ -13,56 +13,48 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { useLocale } from "@/context/locale-context";
-import { useUser } from "@clerk/nextjs";
 import { LoaderIcon, CheckCircleIcon, AlertCircleIcon } from "lucide-react";
+import { useLocale } from "@/context/locale-context";
+import Turnstile from "react-turnstile"; // ✅ استفاده از پکیج آماده
 
 type FormStatus = "idle" | "loading" | "success" | "error";
 
-type OrderMessageFormProps = {
-  onSubmit?: () => Promise<boolean> | boolean;
-};
-
-export default function OrderMessageForm({ onSubmit }: OrderMessageFormProps) {
+export default function OrderMessageForm() {
   const { t } = useLocale();
-  const { user } = useUser();
   const [formStatus, setFormStatus] = useState<FormStatus>("idle");
   const [responseMessage, setResponseMessage] = useState("");
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null); // ✅ ذخیره توکن کپچا
   const formRef = useRef<HTMLFormElement>(null);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (onSubmit) {
-      const canSubmit = await onSubmit();
-      if (!canSubmit) {
-        console.log("⛔ کاربر لاگین نکرده. پیام ارسال نمی‌شود.");
-        return;
-      }
-    }
+    if (!formRef.current) return;
 
-    if (!formRef.current) {
-      console.error("❌ Form reference is null.");
+    // ✅ باید کپچا پر شده باشه
+    if (!captchaToken) {
+      setFormStatus("error");
+      setResponseMessage("⚠️ Please verify captcha first.");
       return;
     }
 
-    const formData = new FormData(formRef.current); // ✅ استفاده از ref
-    const data = {
+    setFormStatus("loading");
+    setResponseMessage("");
+
+    const formData = new FormData(formRef.current);
+    const payload = {
       name: formData.get("name"),
+      email: formData.get("email"),
       subject: formData.get("subject"),
       message: formData.get("message"),
-      email: user?.primaryEmailAddress?.emailAddress || "", // 📧 Clerk email
+      "cf-turnstile-response": captchaToken, // 👈 ارسال توکن به API
     };
-
-    console.log("📥 داده‌های فرم (با Clerk ایمیل):", data);
 
     try {
       const response = await fetch("/api/contact", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
       const result = await response.json();
@@ -71,6 +63,7 @@ export default function OrderMessageForm({ onSubmit }: OrderMessageFormProps) {
         setFormStatus("success");
         setResponseMessage(result?.message || t("contactForm.successMessage"));
         formRef.current.reset();
+        setCaptchaToken(null); // reset captcha
       } else {
         setFormStatus("error");
         setResponseMessage(result?.error || t("contactForm.errorMessage"));
@@ -97,6 +90,7 @@ export default function OrderMessageForm({ onSubmit }: OrderMessageFormProps) {
           {t("contactPage.formDescription")}
         </CardDescription>
       </CardHeader>
+
       <CardContent>
         <form ref={formRef} onSubmit={handleSubmit} className="grid gap-4">
           <div className="grid gap-2">
@@ -106,6 +100,17 @@ export default function OrderMessageForm({ onSubmit }: OrderMessageFormProps) {
               name="name"
               type="text"
               placeholder="John Doe"
+              required
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="email">{t("common.yourEmail")}</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="john@example.com"
               required
             />
           </div>
@@ -130,6 +135,16 @@ export default function OrderMessageForm({ onSubmit }: OrderMessageFormProps) {
               required
             />
           </div>
+
+          {/* ✅ Turnstile widget */}
+          <Turnstile
+            sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+            onVerify={(token) => setCaptchaToken(token)}
+            theme="light" // ✅ مستقیم استفاده کن
+            size="normal" // (اختیاری: normal, compact, invisible)
+            retry="auto" // (اختیاری: auto, never)
+            refreshExpired="auto" // (اختیاری)
+          />
 
           {responseMessage && (
             <div
@@ -160,6 +175,7 @@ export default function OrderMessageForm({ onSubmit }: OrderMessageFormProps) {
           </Button>
         </form>
       </CardContent>
+
       <CardFooter className="text-sm text-muted-foreground">
         {formStatus === "idle" && t("common.weWillContactYouShortly")}
       </CardFooter>
