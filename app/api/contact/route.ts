@@ -60,25 +60,28 @@ export async function POST(request: NextRequest) {
   try {
     const { name, email, subject, message, ["cf-turnstile-response"]: token } = await request.json();
 
-    // ✅ چک فیلدهای اجباری
     if (!name || !email || !message) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    // ✅ چک کپچا
     if (!token) {
       return NextResponse.json({ error: "Captcha missing" }, { status: 400 });
     }
 
+    // 🟢 ارسال درست Turnstile
+    const body = new URLSearchParams();
+    body.append("secret", process.env.TURNSTILE_SECRET_KEY!);
+    body.append("response", token);
+
     const captchaRes = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: `secret=${process.env.TURNSTILE_SECRET_KEY}&response=${token}`,
+      body,
     });
 
     const captchaData = await captchaRes.json();
     if (!captchaData.success) {
-      return NextResponse.json({ error: "Captcha failed" }, { status: 400 });
+      console.error("❌ Turnstile failed:", captchaData);
+      return NextResponse.json({ error: "Captcha failed", details: captchaData }, { status: 400 });
     }
 
     // ✅ ذخیره در دیتابیس

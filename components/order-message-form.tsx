@@ -19,21 +19,32 @@ import Turnstile from "react-turnstile";
 
 type FormStatus = "idle" | "loading" | "success" | "error";
 
-export default function OrderMessageForm() {
+interface OrderMessageFormProps {
+  /**
+   * تابعی که قبل از ارسال اجرا میشه.
+   * اگر false برگردونه، ارسال متوقف میشه.
+   */
+  onSubmit?: () => Promise<boolean>;
+}
+
+export default function OrderMessageForm({ onSubmit }: OrderMessageFormProps) {
   const { t } = useLocale();
   const [formStatus, setFormStatus] = useState<FormStatus>("idle");
   const [responseMessage, setResponseMessage] = useState("");
-  const [captchaToken, setCaptchaToken] = useState<string>(""); // ✅ کپچا
+  const [captchaToken, setCaptchaToken] = useState<string>("");
   const formRef = useRef<HTMLFormElement>(null);
-
-   console.log("✅ Sitekey (from env):", process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    // 📌 اول اجرا کن onSubmit اگه وجود داشت
+    if (onSubmit) {
+      const canSubmit = await onSubmit();
+      if (!canSubmit) return; // ⛔ ارسال متوقف
+    }
+
     if (!formRef.current) return;
 
-    // ✅ اول مطمئن شو کپچا هست
     if (!captchaToken) {
       setFormStatus("error");
       setResponseMessage("⚠️ Please verify captcha first.");
@@ -49,7 +60,7 @@ export default function OrderMessageForm() {
       email: formData.get("email"),
       subject: formData.get("subject"),
       message: formData.get("message"),
-      "cf-turnstile-response": captchaToken, // 👈 ارسال توکن
+      "cf-turnstile-response": captchaToken,
     };
 
     try {
@@ -65,7 +76,7 @@ export default function OrderMessageForm() {
         setFormStatus("success");
         setResponseMessage(result?.message || t("contactForm.successMessage"));
         formRef.current.reset();
-        setCaptchaToken(""); // ✅ ریست توکن بعد از ارسال موفق
+        setCaptchaToken("");
       } else {
         setFormStatus("error");
         setResponseMessage(result?.error || t("contactForm.errorMessage"));
@@ -115,10 +126,9 @@ export default function OrderMessageForm() {
             <Textarea id="message" name="message" placeholder={t("contactForm.messagePlaceholder")} rows={5} required />
           </div>
 
-          {/* ✅ کپچا */}
           <Turnstile
             sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
-            onVerify={(token) => setCaptchaToken(token)} // ذخیره توکن
+            onVerify={(token) => setCaptchaToken(token)}
             theme="light"
           />
 
