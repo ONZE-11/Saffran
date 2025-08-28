@@ -2,11 +2,10 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-// 🔒 مسیرهای محافظت‌شده
 const isProtectedRoute = createRouteMatcher([
-  "/admin(.*)",      // همه صفحات ادمین
-  "/api/admin(.*)",  // APIهای ادمین
-  "/api/contact",    // API تماس (باید Clerk رویش فعال باشه)
+  "/admin(.*)",      // صفحات ادمین
+  "/api/admin(.*)",  // API ادمین
+  "/api/contact",    // تماس (فقط لاگین کرده‌ها)
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
@@ -14,7 +13,6 @@ export default clerkMiddleware(async (auth, req) => {
 
   if (isProtectedRoute(req)) {
     if (!userId) {
-      // کاربر لاگین نیست → ری‌دایرکت به صفحه SignIn
       return redirectToSignIn({ returnBackUrl: req.url });
     }
   }
@@ -22,11 +20,10 @@ export default clerkMiddleware(async (auth, req) => {
   return NextResponse.next();
 });
 
-// 🔧 Config → تعیین مسیرهایی که Middleware باید روشون فعال باشه
 export const config = {
   matcher: [
-    "/admin/:path*",   // همه صفحات ادمین
-    "/api/admin/:path*", // APIهای ادمین
-    "/api/contact",    // API تماس
+    "/admin/:path*",
+    "/api/admin/:path*",
+    "/api/contact",
   ],
 };
