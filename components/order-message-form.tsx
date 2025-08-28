@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { LoaderIcon, CheckCircleIcon, AlertCircleIcon } from "lucide-react";
 import { useLocale } from "@/context/locale-context";
-import Turnstile from "react-turnstile"; // ✅ استفاده از پکیج آماده
+import Turnstile from "react-turnstile";
 
 type FormStatus = "idle" | "loading" | "success" | "error";
 
@@ -23,7 +23,7 @@ export default function OrderMessageForm() {
   const { t } = useLocale();
   const [formStatus, setFormStatus] = useState<FormStatus>("idle");
   const [responseMessage, setResponseMessage] = useState("");
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null); // ✅ ذخیره توکن کپچا
+  const [captchaToken, setCaptchaToken] = useState<string>(""); // ✅ کپچا
   const formRef = useRef<HTMLFormElement>(null);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -31,7 +31,7 @@ export default function OrderMessageForm() {
 
     if (!formRef.current) return;
 
-    // ✅ باید کپچا پر شده باشه
+    // ✅ اول مطمئن شو کپچا هست
     if (!captchaToken) {
       setFormStatus("error");
       setResponseMessage("⚠️ Please verify captcha first.");
@@ -47,7 +47,7 @@ export default function OrderMessageForm() {
       email: formData.get("email"),
       subject: formData.get("subject"),
       message: formData.get("message"),
-      "cf-turnstile-response": captchaToken, // 👈 ارسال توکن به API
+      "cf-turnstile-response": captchaToken, // 👈 ارسال توکن
     };
 
     try {
@@ -63,7 +63,7 @@ export default function OrderMessageForm() {
         setFormStatus("success");
         setResponseMessage(result?.message || t("contactForm.successMessage"));
         formRef.current.reset();
-        setCaptchaToken(null); // reset captcha
+        setCaptchaToken(""); // ✅ ریست توکن بعد از ارسال موفق
       } else {
         setFormStatus("error");
         setResponseMessage(result?.error || t("contactForm.errorMessage"));
@@ -95,55 +95,29 @@ export default function OrderMessageForm() {
         <form ref={formRef} onSubmit={handleSubmit} className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="name">{t("common.yourName")}</Label>
-            <Input
-              id="name"
-              name="name"
-              type="text"
-              placeholder="John Doe"
-              required
-            />
+            <Input id="name" name="name" type="text" placeholder="John Doe" required />
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="email">{t("common.yourEmail")}</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="john@example.com"
-              required
-            />
+            <Input id="email" name="email" type="email" placeholder="john@example.com" required />
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="subject">{t("common.subjectOptional")}</Label>
-            <Input
-              id="subject"
-              name="subject"
-              type="text"
-              placeholder={t("contactForm.subjectPlaceholder")}
-            />
+            <Input id="subject" name="subject" type="text" placeholder={t("contactForm.subjectPlaceholder")} />
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="message">{t("common.yourMessage")}</Label>
-            <Textarea
-              id="message"
-              name="message"
-              placeholder={t("contactForm.messagePlaceholder")}
-              rows={5}
-              required
-            />
+            <Textarea id="message" name="message" placeholder={t("contactForm.messagePlaceholder")} rows={5} required />
           </div>
 
-          {/* ✅ Turnstile widget */}
+          {/* ✅ کپچا */}
           <Turnstile
             sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
-            onVerify={(token) => setCaptchaToken(token)}
-            theme="light" // ✅ مستقیم استفاده کن
-            size="normal" // (اختیاری: normal, compact, invisible)
-            retry="auto" // (اختیاری: auto, never)
-            refreshExpired="auto" // (اختیاری)
+            onVerify={(token) => setCaptchaToken(token)} // ذخیره توکن
+            theme="light"
           />
 
           {responseMessage && (
