@@ -58,30 +58,49 @@ export async function GET(request: NextRequest) {
 // =======================
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, subject, message, ["cf-turnstile-response"]: token } = await request.json();
+    const { name, email, subject, message, ["cf-turnstile-response"]: token } =
+      await request.json();
 
+    // ✅ چک فیلدهای اجباری
     if (!name || !email || !message) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
     }
 
+    // ✅ چک کپچا
     if (!token) {
       return NextResponse.json({ error: "Captcha missing" }, { status: 400 });
     }
 
-    // 🟢 ارسال درست Turnstile
+    // 🟢 ارسال درخواست به Cloudflare Turnstile
     const body = new URLSearchParams();
     body.append("secret", process.env.TURNSTILE_SECRET_KEY!);
     body.append("response", token);
 
-    const captchaRes = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-      method: "POST",
-      body,
-    });
+    const captchaRes = await fetch(
+      "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+      {
+        method: "POST",
+        body,
+      }
+    );
 
     const captchaData = await captchaRes.json();
+
+    // 📝 فقط در لوکال / توسعه لاگ بگیر
+    if (process.env.NODE_ENV !== "production") {
+      console.log("🔎 Captcha verify response:", captchaData);
+    }
+
+    // ❌ کپچا رد شد
     if (!captchaData.success) {
       console.error("❌ Turnstile failed:", captchaData);
-      return NextResponse.json({ error: "Captcha failed", details: captchaData }, { status: 400 });
+      return NextResponse.json(
+        { error: "Captcha failed", details: captchaData },
+        { status: 400 }
+      );
     }
 
     // ✅ ذخیره در دیتابیس
@@ -94,9 +113,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: "Message received" });
   } catch (err: any) {
     console.error("❌ Error in POST /api/contact:", err.message);
-    return NextResponse.json({ error: "Failed to submit message" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to submit message" },
+      { status: 500 }
+    );
   }
 }
+
+
+
 
 // =======================
 // 📌 DELETE → فقط برای ادمین
