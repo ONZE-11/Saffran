@@ -3,17 +3,28 @@ import { pool } from "@/lib/db";
 import { getAuth } from "@clerk/nextjs/server";
 import { clerkClient } from "@clerk/clerk-sdk-node";
 
-const ADMIN_EMAILS: string[] = process.env.ADMIN_EMAILS
-  ? process.env.ADMIN_EMAILS.split(",").map((e) => e.trim())
-  : [];
+// 🔍 ENV و Parse لیست ادمین‌ها
+const rawEnv = process.env.ADMIN_EMAILS || "";
 
-const isAdmin = (email: string | undefined | null): boolean =>
-  !!email && ADMIN_EMAILS.includes(email);
+const ADMIN_EMAILS: string[] = rawEnv
+  .split(",")
+  .map((e) => e.trim().toLowerCase())
+  .filter(Boolean);
+
+const isAdmin = (email: string | undefined | null): boolean => {
+  console.log("🔍 Clerk email:", email);
+  console.log("🔍 ADMIN_EMAILS ENV:", rawEnv);
+  console.log("🔍 Parsed list:", ADMIN_EMAILS);
+  return !!email && ADMIN_EMAILS.includes(email.toLowerCase());
+};
 
 const getUserEmail = async (userId: string): Promise<string | null> => {
   try {
     const user = await clerkClient.users.getUser(userId);
-    return user?.emailAddresses?.[0]?.emailAddress || null;
+    const primary = user.emailAddresses.find(
+      (e) => e.id === user.primaryEmailAddressId
+    )?.emailAddress;
+    return primary || user.emailAddresses[0]?.emailAddress || null;
   } catch (err) {
     console.error("❌ Clerk error:", err);
     return null;
@@ -27,19 +38,31 @@ export async function GET(request: NextRequest) {
   try {
     const { userId } = getAuth(request) ?? {};
     if (!userId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { ok: false, reason: "no-userId", rawEnv, adminList: ADMIN_EMAILS },
+        { status: 401 }
+      );
     }
 
     const email = await getUserEmail(userId);
     if (!isAdmin(email)) {
-      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+      return NextResponse.json(
+        {
+          ok: false,
+          reason: "not-admin",
+          email,
+          rawEnv,
+          adminList: ADMIN_EMAILS,
+        },
+        { status: 403 }
+      );
     }
 
     const [rows]: any = await pool.query(
       "SELECT * FROM contact_messages ORDER BY created_at DESC"
     );
 
-    return NextResponse.json(rows);
+    return NextResponse.json({ ok: true, email, rawEnv, adminList: ADMIN_EMAILS, rows });
   } catch (err: any) {
     return NextResponse.json(
       { error: "Failed to fetch messages", details: err.message },
@@ -71,7 +94,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: "Message received" });
   } catch (err: any) {
     return NextResponse.json(
-      { error: "Failed to submit message" },
+      { error: "Failed to submit message", details: err.message },
       { status: 500 }
     );
   }
@@ -84,11 +107,23 @@ export async function DELETE(request: NextRequest) {
   try {
     const { userId } = getAuth(request);
     if (!userId)
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { ok: false, reason: "no-userId", rawEnv, adminList: ADMIN_EMAILS },
+        { status: 401 }
+      );
 
     const email = await getUserEmail(userId);
     if (!isAdmin(email))
-      return NextResponse.json({ error: "Access denied" }, { status: 403 });
+      return NextResponse.json(
+        {
+          ok: false,
+          reason: "not-admin",
+          email,
+          rawEnv,
+          adminList: ADMIN_EMAILS,
+        },
+        { status: 403 }
+      );
 
     const { id } = await request.json();
     if (!id || isNaN(Number(id))) {
@@ -107,10 +142,16 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ message: "Message deleted successfully" });
+    return NextResponse.json({
+      ok: true,
+      message: "Message deleted successfully",
+      email,
+      rawEnv,
+      adminList: ADMIN_EMAILS,
+    });
   } catch (err: any) {
     return NextResponse.json(
-      { error: "Failed to delete message" },
+      { error: "Failed to delete message", details: err.message },
       { status: 500 }
     );
   }
