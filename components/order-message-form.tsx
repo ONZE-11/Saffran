@@ -35,7 +35,6 @@ export default function OrderMessageForm({ onSubmit }: OrderMessageFormProps) {
   const formRef = useRef<HTMLFormElement>(null);
 
   console.log("Turnstile sitekey:", process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
-  
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -97,8 +96,7 @@ export default function OrderMessageForm({ onSubmit }: OrderMessageFormProps) {
   };
 
   console.log("🔑 SITE KEY:", process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
-console.log("🎯 Captcha token state:", captchaToken);
-
+  console.log("🎯 Captcha token state:", captchaToken);
 
   return (
     <Card className="w-full max-w-lg mx-auto bg-gradient-to-br from-card to-muted/30 shadow-xl border-2 border-orange-200/30">
@@ -115,33 +113,56 @@ console.log("🎯 Captcha token state:", captchaToken);
         <form ref={formRef} onSubmit={handleSubmit} className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="name">{t("common.yourName")}</Label>
-            <Input id="name" name="name" type="text" placeholder="John Doe" required />
+            <Input
+              id="name"
+              name="name"
+              type="text"
+              placeholder="John Doe"
+              required
+            />
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="email">{t("common.yourEmail")}</Label>
-            <Input id="email" name="email" type="email" placeholder="john@example.com" required />
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="john@example.com"
+              required
+            />
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="subject">{t("common.subjectOptional")}</Label>
-            <Input id="subject" name="subject" type="text" placeholder={t("contactForm.subjectPlaceholder")} />
+            <Input
+              id="subject"
+              name="subject"
+              type="text"
+              placeholder={t("contactForm.subjectPlaceholder")}
+            />
           </div>
 
           <div className="grid gap-2">
             <Label htmlFor="message">{t("common.yourMessage")}</Label>
-            <Textarea id="message" name="message" placeholder={t("contactForm.messagePlaceholder")} rows={5} required />
+            <Textarea
+              id="message"
+              name="message"
+              placeholder={t("contactForm.messagePlaceholder")}
+              rows={5}
+              required
+            />
           </div>
 
-        <Turnstile
-  sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
-  onVerify={(token) => {
-    console.log("✅ Captcha verified, token:", token);
-    setCaptchaToken(token);
-  }}
-  onError={(err) => console.error("❌ Captcha error:", err)}
-  theme="light"
-/>
+          <Turnstile
+            sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+            onVerify={(token) => {
+              console.log("✅ Captcha verified, token:", token);
+              setCaptchaToken(token);
+            }}
+            onError={(err) => console.error("❌ Captcha error:", err)}
+            theme="light"
+          />
 
           {responseMessage && (
             <div
