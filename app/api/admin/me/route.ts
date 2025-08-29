@@ -1,19 +1,21 @@
-// app/api/admin/me/route.ts
 import { NextResponse } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
 import { clerkClient } from "@clerk/clerk-sdk-node";
 
-const rawEnv = process.env.ADMIN_EMAILS || "";
-
-const ADMIN_EMAILS = rawEnv
-  .split(",")
-  .map((e) => e.trim().toLowerCase())
-  .filter(Boolean);
-
 export async function GET(req: Request) {
+  const rawEnv = process.env.ADMIN_EMAILS || "";
+
+  const ADMIN_EMAILS = rawEnv
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+
   const { userId } = getAuth(req as any);
   if (!userId) {
-    return NextResponse.json({ ok: false, reason: "no-userId" }, { status: 401 });
+    return NextResponse.json(
+      { ok: false, reason: "no-userId", rawEnv, adminList: ADMIN_EMAILS },
+      { status: 401 }
+    );
   }
 
   const user = await clerkClient.users.getUser(userId);
@@ -30,10 +32,10 @@ export async function GET(req: Request) {
     {
       ok: isAdmin,
       email,
-      adminList: ADMIN_EMAILS,
       rawEnv,
+      adminList: ADMIN_EMAILS,
       comparison: `${email} ∈ ${JSON.stringify(ADMIN_EMAILS)} → ${isAdmin}`,
     },
-    { status: isAdmin ? 200 : 403 }
+    { status: isAdmin ? 200 : 200 } // 👈 موقتاً همیشه 200 بدیم برای دیدن جزئیات
   );
 }
