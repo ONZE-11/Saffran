@@ -3,16 +3,13 @@ import { pool } from "@/lib/db";
 import { getAuth } from "@clerk/nextjs/server";
 import { clerkClient } from "@clerk/clerk-sdk-node";
 
-// 📌 گرفتن ایمیل‌های ادمین از env
 const ADMIN_EMAILS: string[] = process.env.ADMIN_EMAILS
   ? process.env.ADMIN_EMAILS.split(",").map((e) => e.trim())
   : [];
 
-// 🔒 بررسی اینکه کاربر ادمین است یا خیر
 const isAdmin = (email: string | undefined | null): boolean =>
   !!email && ADMIN_EMAILS.includes(email);
 
-// 📥 گرفتن ایمیل کاربر لاگین‌شده از Clerk
 const getUserEmail = async (userId: string): Promise<string | null> => {
   try {
     const user = await clerkClient.users.getUser(userId);
@@ -42,10 +39,8 @@ export async function GET(request: NextRequest) {
       "SELECT * FROM contact_messages ORDER BY created_at DESC"
     );
 
-    console.log("📩 Messages fetched:", rows?.length ?? 0);
     return NextResponse.json(rows);
   } catch (err: any) {
-    console.error("❌ Error in GET /api/contact:", err);
     return NextResponse.json(
       { error: "Failed to fetch messages", details: err.message },
       { status: 500 }
@@ -54,13 +49,12 @@ export async function GET(request: NextRequest) {
 }
 
 // =======================
-// 📌 POST → عمومی (فقط با Clerk)
+// 📌 POST → عمومی (بدون لاگین)
 // =======================
 export async function POST(request: NextRequest) {
   try {
     const { name, email, subject, message } = await request.json();
 
-    // ✅ چک فیلدهای اجباری
     if (!name || !email || !message) {
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -68,7 +62,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ✅ ذخیره در دیتابیس
     await pool.query(
       `INSERT INTO contact_messages (name, email, subject, message, created_at)
        VALUES (?, ?, ?, ?, NOW())`,
@@ -77,7 +70,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ message: "Message received" });
   } catch (err: any) {
-    console.error("❌ Error in POST /api/contact:", err.message);
     return NextResponse.json(
       { error: "Failed to submit message" },
       { status: 500 }
@@ -107,6 +99,7 @@ export async function DELETE(request: NextRequest) {
       "DELETE FROM contact_messages WHERE id = ?",
       [id]
     );
+
     if (result.affectedRows === 0) {
       return NextResponse.json(
         { error: "Message not found" },
@@ -116,7 +109,6 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ message: "Message deleted successfully" });
   } catch (err: any) {
-    console.error("❌ Error in DELETE /api/contact:", err.message);
     return NextResponse.json(
       { error: "Failed to delete message" },
       { status: 500 }
