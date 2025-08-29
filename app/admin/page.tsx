@@ -16,10 +16,14 @@ export default async function AdminPage() {
 
   // ✅ ایمیل‌های مجاز برای ورود به پنل ادمین
  const adminEmails = process.env.ADMIN_EMAILS?.split(",").map(e => e.trim()) ?? [];
-if (!adminEmails.includes(email)) {
-  console.warn("❌ Not admin:", email);
+
+ console.log("🔍 Current user:", email);
+console.log("🔍 Admin emails:", adminEmails);
+
+if (!adminEmails.map(e => e.toLowerCase()).includes(email.toLowerCase())) {
   redirect("/");
 }
+
 
 
   // 🔍 تشخیص زبان از هدر مرورگر (Accept-Language)
