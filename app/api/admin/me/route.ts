@@ -1,7 +1,7 @@
 // app/api/admin/me/route.ts
 import { NextResponse } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
-import { clerkClient } from "@clerk/clerk-sdk-node"; // 👈 این درست کار می‌کنه
+import { clerkClient } from "@clerk/clerk-sdk-node";
 
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "")
   .split(",")
@@ -12,7 +12,6 @@ export async function GET(req: Request) {
   const { userId } = getAuth(req as any);
   if (!userId) return NextResponse.json({ ok: false }, { status: 401 });
 
-  // ✅ گرفتن کاربر از Clerk
   const user = await clerkClient.users.getUser(userId);
 
   const primaryEmail = user.emailAddresses.find(
@@ -21,9 +20,16 @@ export async function GET(req: Request) {
 
   const email = primaryEmail || user.emailAddresses[0]?.emailAddress || "";
 
+  // 🔍 لاگ برای دیباگ در پروداکشن (Vercel Logs)
+  console.log("👤 Clerk user email:", email);
+  console.log("👮 Allowed admin emails:", ADMIN_EMAILS);
+  console.log(
+    "🔎 Comparison result:",
+    ADMIN_EMAILS.includes(email.toLowerCase())
+  );
+
   const isAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
   if (!isAdmin) {
-    console.warn("❌ Access denied for:", email);
     return NextResponse.json({ ok: false }, { status: 403 });
   }
 
