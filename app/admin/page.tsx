@@ -7,9 +7,12 @@ import { SiteFooter } from "@/components/site-footer";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
+type AccessState = "loading" | "ok" | "forbidden";
+type Locale = "en" | "es";
+
 export default function AdminPage() {
-  const [state, setState] = useState<"loading" | "ok" | "forbidden">("loading");
-  const [locale, setLocale] = useState<"en" | "es">("en");
+  const [state, setState] = useState<AccessState>("loading");
+  const [locale, setLocale] = useState<Locale>("en");
 
   useEffect(() => {
     // 🔍 Detect locale from browser
@@ -17,36 +20,47 @@ export default function AdminPage() {
     setLocale(lang.startsWith("es") ? "es" : "en");
 
     // 🔒 Check access via API
-    fetch("/api/admin/me")
-      .then((r) => {
-        if (r.status === 200) setState("ok");
-        else setState("forbidden");
-      })
-      .catch(() => setState("forbidden"));
+    const checkAccess = async () => {
+      try {
+        const res = await fetch("/api/admin/me", { cache: "no-store" });
+        setState(res.ok ? "ok" : "forbidden");
+      } catch {
+        setState("forbidden");
+      }
+    };
+
+    checkAccess();
   }, []);
 
-  if (state === "loading")
+  if (state === "loading") {
     return (
       <>
         <SiteHeader />
         <main className="max-w-7xl mx-auto px-4 py-20 text-center">
-          <p>🔄 {locale === "es" ? "Verificando acceso..." : "Checking access…"} </p>
+          <p>
+            🔄 {locale === "es" ? "Verificando acceso..." : "Checking access…"}
+          </p>
         </main>
         <SiteFooter />
       </>
     );
+  }
 
-  if (state === "forbidden")
+  if (state === "forbidden") {
     return (
       <>
         <SiteHeader />
         <main className="max-w-7xl mx-auto px-4 py-20 text-center text-red-600 font-semibold">
-          <p>⛔ {locale === "es" ? "Acceso denegado" : "403 – Access denied"}</p>
+          <p>
+            ⛔ {locale === "es" ? "Acceso denegado" : "403 – Access denied"}
+          </p>
         </main>
         <SiteFooter />
       </>
     );
+  }
 
+  // ✅ If access granted → render dashboard
   return (
     <>
       <SiteHeader />
@@ -68,7 +82,7 @@ export default function AdminPage() {
           </Link>
         </div>
 
-        {/* ✅ جدول سفارشات */}
+        {/* ✅ Orders table component */}
         <AdminOrdersTable />
       </main>
       <SiteFooter />
