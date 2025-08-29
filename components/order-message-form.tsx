@@ -96,6 +96,10 @@ export default function OrderMessageForm({ onSubmit }: OrderMessageFormProps) {
     }, 5000);
   };
 
+  console.log("🔑 SITE KEY:", process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
+console.log("🎯 Captcha token state:", captchaToken);
+
+
   return (
     <Card className="w-full max-w-lg mx-auto bg-gradient-to-br from-card to-muted/30 shadow-xl border-2 border-orange-200/30">
       <CardHeader className="space-y-1">
@@ -129,12 +133,15 @@ export default function OrderMessageForm({ onSubmit }: OrderMessageFormProps) {
             <Textarea id="message" name="message" placeholder={t("contactForm.messagePlaceholder")} rows={5} required />
           </div>
 
-          <Turnstile
-            sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
-            onVerify={(token) => setCaptchaToken(token)}
-            theme="light"
-          />
-          
+        <Turnstile
+  sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+  onVerify={(token) => {
+    console.log("✅ Captcha verified, token:", token);
+    setCaptchaToken(token);
+  }}
+  onError={(err) => console.error("❌ Captcha error:", err)}
+  theme="light"
+/>
 
           {responseMessage && (
             <div
