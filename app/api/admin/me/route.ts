@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
 import { clerkClient } from "@clerk/clerk-sdk-node";
+console.log("🔍 ADMIN_EMAILS ENV:", process.env.ADMIN_EMAILS);
 
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "")
   .split(",")
@@ -19,5 +20,14 @@ export async function GET(req: Request) {
   const email = primaryEmail || user.emailAddresses[0]?.emailAddress || "";
 
   const isAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
-  return NextResponse.json({ ok: isAdmin, email }, { status: isAdmin ? 200 : 403 });
+  return NextResponse.json(
+  {
+    ok: isAdmin,
+    email,
+    adminList: ADMIN_EMAILS,
+    rawEnv: process.env.ADMIN_EMAILS, // 👈 برای تست نهایی
+  },
+  { status: isAdmin ? 200 : 403 }
+);
+
 }
