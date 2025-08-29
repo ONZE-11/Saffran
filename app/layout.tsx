@@ -7,10 +7,14 @@ import { CartProvider } from "@/context/cart-context";
 import { ProductsProvider } from "@/context/ProductsContext";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "react-hot-toast";
-import Script from "next/script";  // ✅ اینو اضافه کنید
+import Script from "next/script"; // ✅ اینو اضافه کنید
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
-const playfairDisplay = Playfair_Display({ subsets: ["latin"], variable: "--font-serif", display: "swap" });
+const playfairDisplay = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-serif",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.elororojo.es"),
@@ -32,20 +36,25 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <ClerkProvider>
       <html lang="es" suppressHydrationWarning>
-        <head>
-          {/* ✅ اسکریپت Turnstile */}
-          <Script
-            src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-            strategy="afterInteractive"
-          />
-        </head>
-        <body className={`${inter.variable} ${playfairDisplay.variable} font-sans`}>
+        <head>{/* ✅ اسکریپت Turnstile */}</head>
+        <body
+          className={`${inter.variable} ${playfairDisplay.variable} font-sans`}
+        >
           <ProductsProvider>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
               <LocaleProvider>
                 <CartProvider>{children}</CartProvider>
               </LocaleProvider>

@@ -34,6 +34,9 @@ export default function OrderMessageForm({ onSubmit }: OrderMessageFormProps) {
   const [captchaToken, setCaptchaToken] = useState<string>("");
   const formRef = useRef<HTMLFormElement>(null);
 
+  console.log("Turnstile sitekey:", process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY);
+  
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -131,6 +134,7 @@ export default function OrderMessageForm({ onSubmit }: OrderMessageFormProps) {
             onVerify={(token) => setCaptchaToken(token)}
             theme="light"
           />
+          
 
           {responseMessage && (
             <div
