@@ -22,6 +22,7 @@ const getUserEmail = async (userId: string): Promise<string | null> => {
     return null;
   }
 };
+
 // =======================
 // 📌 GET → فقط برای ادمین
 // =======================
@@ -52,53 +53,17 @@ export async function GET(request: NextRequest) {
   }
 }
 
-
 // =======================
-// 📌 POST → عمومی (فرم Contact + Turnstile)
+// 📌 POST → عمومی (فقط با Clerk)
 // =======================
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, subject, message, ["cf-turnstile-response"]: token } =
-      await request.json();
+    const { name, email, subject, message } = await request.json();
 
     // ✅ چک فیلدهای اجباری
     if (!name || !email || !message) {
       return NextResponse.json(
         { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
-
-    // ✅ چک کپچا
-    if (!token) {
-      return NextResponse.json({ error: "Captcha missing" }, { status: 400 });
-    }
-
-    // 🟢 ارسال درخواست به Cloudflare Turnstile
-    const body = new URLSearchParams();
-    body.append("secret", process.env.TURNSTILE_SECRET_KEY!);
-    body.append("response", token);
-
-    const captchaRes = await fetch(
-      "https://challenges.cloudflare.com/turnstile/v0/siteverify",
-      {
-        method: "POST",
-        body,
-      }
-    );
-
-    const captchaData = await captchaRes.json();
-
-    // 📝 فقط در لوکال / توسعه لاگ بگیر
-    if (process.env.NODE_ENV !== "production") {
-      console.log("🔎 Captcha verify response:", captchaData);
-    }
-
-    // ❌ کپچا رد شد
-    if (!captchaData.success) {
-      console.error("❌ Turnstile failed:", captchaData);
-      return NextResponse.json(
-        { error: "Captcha failed", details: captchaData },
         { status: 400 }
       );
     }
@@ -120,33 +85,41 @@ export async function POST(request: NextRequest) {
   }
 }
 
-
-
-
 // =======================
 // 📌 DELETE → فقط برای ادمین
 // =======================
 export async function DELETE(request: NextRequest) {
   try {
     const { userId } = getAuth(request);
-    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!userId)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const email = await getUserEmail(userId);
-    if (!isAdmin(email)) return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    if (!isAdmin(email))
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
 
     const { id } = await request.json();
     if (!id || isNaN(Number(id))) {
       return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
     }
 
-    const [result]: any = await pool.query("DELETE FROM contact_messages WHERE id = ?", [id]);
+    const [result]: any = await pool.query(
+      "DELETE FROM contact_messages WHERE id = ?",
+      [id]
+    );
     if (result.affectedRows === 0) {
-      return NextResponse.json({ error: "Message not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Message not found" },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({ message: "Message deleted successfully" });
   } catch (err: any) {
     console.error("❌ Error in DELETE /api/contact:", err.message);
-    return NextResponse.json({ error: "Failed to delete message" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to delete message" },
+      { status: 500 }
+    );
   }
 }
