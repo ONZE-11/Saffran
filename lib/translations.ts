@@ -121,6 +121,8 @@ export const translations = {
       orderError: "❌ Something went wrong. Please try again.",
 
       sending: "Sending",
+
+  
     },
 
     contactForm: {
@@ -336,6 +338,8 @@ export const translations = {
       pdf: "PDF",
       orderSuccess: "✅ ¡Pedido enviado con éxito!",
       orderError: "❌ Algo salió mal. Por favor intente de nuevo.",
+       yourEmail: "Tu correo electrónico",
+      sending: "Enviando",
     },
 
     homepage: {

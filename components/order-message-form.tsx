@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useUser } from "@clerk/nextjs";   // 👈 گرفتن یوزر از Clerk
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -24,6 +25,9 @@ interface OrderMessageFormProps {
 
 export default function OrderMessageForm({ onSubmit }: OrderMessageFormProps) {
   const { t } = useLocale();
+  const { user } = useUser(); // ✅ Clerk user
+  const emailFromClerk = user?.primaryEmailAddress?.emailAddress || "";
+
   const [formStatus, setFormStatus] = useState<FormStatus>("idle");
   const [responseMessage, setResponseMessage] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
@@ -44,7 +48,7 @@ export default function OrderMessageForm({ onSubmit }: OrderMessageFormProps) {
     const formData = new FormData(formRef.current);
     const payload = {
       name: formData.get("name"),
-      email: formData.get("email"),
+      email: emailFromClerk || formData.get("email"), // 👈 همیشه Clerk اولویت داره
       subject: formData.get("subject"),
       message: formData.get("message"),
     };
@@ -91,26 +95,57 @@ export default function OrderMessageForm({ onSubmit }: OrderMessageFormProps) {
 
       <CardContent>
         <form ref={formRef} onSubmit={handleSubmit} className="grid gap-4">
+          {/* Name */}
           <div className="grid gap-2">
             <Label htmlFor="name">{t("common.yourName")}</Label>
-            <Input id="name" name="name" type="text" placeholder="John Doe" required />
+            <Input
+              id="name"
+              name="name"
+              type="text"
+              placeholder="John Doe"
+              required
+            />
           </div>
 
+          {/* Email (Clerk → readOnly) */}
           <div className="grid gap-2">
             <Label htmlFor="email">{t("common.yourEmail")}</Label>
-            <Input id="email" name="email" type="email" placeholder="john@example.com" required />
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="john@example.com"
+              defaultValue={emailFromClerk}
+              readOnly={!!emailFromClerk}
+              required={!emailFromClerk}
+              className={emailFromClerk ? "bg-gray-100 text-gray-500" : ""}
+            />
           </div>
 
+          {/* Subject */}
           <div className="grid gap-2">
             <Label htmlFor="subject">{t("common.subjectOptional")}</Label>
-            <Input id="subject" name="subject" type="text" placeholder={t("contactForm.subjectPlaceholder")} />
+            <Input
+              id="subject"
+              name="subject"
+              type="text"
+              placeholder={t("contactForm.subjectPlaceholder")}
+            />
           </div>
 
+          {/* Message */}
           <div className="grid gap-2">
             <Label htmlFor="message">{t("common.yourMessage")}</Label>
-            <Textarea id="message" name="message" placeholder={t("contactForm.messagePlaceholder")} rows={5} required />
+            <Textarea
+              id="message"
+              name="message"
+              placeholder={t("contactForm.messagePlaceholder")}
+              rows={5}
+              required
+            />
           </div>
 
+          {/* Feedback */}
           {responseMessage && (
             <div
               className={`p-3 rounded-lg flex items-center gap-2 text-sm ${
@@ -128,6 +163,7 @@ export default function OrderMessageForm({ onSubmit }: OrderMessageFormProps) {
             </div>
           )}
 
+          {/* Submit */}
           <Button type="submit" disabled={formStatus === "loading"}>
             {formStatus === "loading" ? (
               <div className="flex items-center gap-2">
