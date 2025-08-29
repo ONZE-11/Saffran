@@ -1,4 +1,6 @@
 // app/api/admin/me/route.ts
+export const dynamic = "force-dynamic";
+
 import { NextResponse } from "next/server";
 import { getAuth } from "@clerk/nextjs/server";
 import { clerkClient } from "@clerk/clerk-sdk-node";
@@ -24,11 +26,10 @@ export async function GET(req: Request) {
 
   const isAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
 
-  // 🔍 دیباگ: خروجی کامل بده
   return NextResponse.json({
     ok: isAdmin,
     email,
     adminList: ADMIN_EMAILS,
-    comparison: ADMIN_EMAILS.includes(email.toLowerCase()),
+    comparison: isAdmin,
   }, { status: isAdmin ? 200 : 403 });
 }
