@@ -10,7 +10,9 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || "")
 
 export async function GET(req: Request) {
   const { userId } = getAuth(req as any);
-  if (!userId) return NextResponse.json({ ok: false }, { status: 401 });
+  if (!userId) {
+    return NextResponse.json({ ok: false, reason: "no userId" }, { status: 401 });
+  }
 
   const user = await clerkClient.users.getUser(userId);
 
@@ -20,18 +22,13 @@ export async function GET(req: Request) {
 
   const email = primaryEmail || user.emailAddresses[0]?.emailAddress || "";
 
-  // 🔍 لاگ برای دیباگ در پروداکشن (Vercel Logs)
-  console.log("👤 Clerk user email:", email);
-  console.log("👮 Allowed admin emails:", ADMIN_EMAILS);
-  console.log(
-    "🔎 Comparison result:",
-    ADMIN_EMAILS.includes(email.toLowerCase())
-  );
-
   const isAdmin = ADMIN_EMAILS.includes(email.toLowerCase());
-  if (!isAdmin) {
-    return NextResponse.json({ ok: false }, { status: 403 });
-  }
 
-  return NextResponse.json({ ok: true, email });
+  // 🔍 دیباگ: خروجی کامل بده
+  return NextResponse.json({
+    ok: isAdmin,
+    email,
+    adminList: ADMIN_EMAILS,
+    comparison: ADMIN_EMAILS.includes(email.toLowerCase()),
+  }, { status: isAdmin ? 200 : 403 });
 }
