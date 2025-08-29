@@ -15,8 +15,7 @@ export default async function AdminPage() {
   const email = user.emailAddresses[0].emailAddress;
 
   // ✅ ایمیل‌های مجاز برای ورود به پنل ادمین
-  const adminEmails = ["mahjoubia509@gmail.com", "mairesmaster@outlook.com"];
-
+  const adminEmails = process.env.ADMIN_EMAILS?.split(",") ?? [];
   if (!adminEmails.includes(email)) redirect("/");
 
   // 🔍 تشخیص زبان از هدر مرورگر (Accept-Language)
@@ -46,7 +45,7 @@ export default async function AdminPage() {
         </div>
 
         {/* ✅ زبان به جدول پاس داده می‌شود */}
-        <AdminOrdersTable  />
+        <AdminOrdersTable />
       </main>
       <SiteFooter />
     </>

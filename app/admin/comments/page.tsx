@@ -46,7 +46,7 @@ const formatDateTime = (dateString: string) => {
   return `${formattedDate}, ${formattedTime}`;
 };
 
-export default function AdminCommentsPageClient() {
+export default function AdminCommentsPage() {
   const { locale } = useLocale();
   const [messages, setMessages] = useState<Message[]>([]);
   const [search, setSearch] = useState("");
