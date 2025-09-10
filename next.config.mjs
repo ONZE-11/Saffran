@@ -1,4 +1,3 @@
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: { ignoreDuringBuilds: true },
@@ -9,29 +8,22 @@ const nextConfig = {
 
   async redirects() {
     return [
-      // هر درخواستی که با HOST = elororojo.es (غیر www) بیاید → مستقیم به https://www.elororojo.es/* (308)
+      // هر چیزی غیر www → نسخه نهایی https://www.elororojo.es
       {
-        source: "/:path*",
-        has: [{ type: "host", value: "elororojo.es" }],
-        destination: "https://www.elororojo.es/:path*",
-        permanent: true, // = 308
+        source: '/:path*',
+        has: [{ type: 'host', value: 'elororojo.es' }], // غیر www
+        destination: 'https://www.elororojo.es/:path*',
+        permanent: true, // 301 Permanent Redirect
+      },
+      // http → https (همه مسیرها)
+      {
+        source: '/:path*',
+        has: [{ type: 'scheme', value: 'http' }],
+        destination: 'https://www.elororojo.es/:path*',
+        permanent: true, // 301 Permanent Redirect
       },
     ];
   },
-
-  // اگر فقط cart/checkout را noindex می‌خواهی، این بخش را باز کن و بقیهٔ صفحات عمومی را دست نزن
-  // async headers() {
-  //   return [
-  //     {
-  //       source: "/cart",
-  //       headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
-  //     },
-  //     {
-  //       source: "/checkout",
-  //       headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
-  //     },
-  //   ];
-  // },
 };
 
 export default nextConfig;
